@@ -330,12 +330,34 @@ async function initializeData() {
                 console.log('🔄 Données mises à jour depuis Firebase');
                 allEmployees = data.employees || initialData.employees;
                 
-                // Mettre à jour eventData
+                // Mettre à jour eventData avec validation
                 const oldEventData = { ...eventData };
                 eventData = { ...initialData };
                 for (const key in data) {
                     if (key !== 'employees' && data[key]) {
                         eventData[key] = data[key];
+                        
+                        // ✅ VALIDER ET CORRIGER LES SECTEURS
+                        if (eventData[key].sections) {
+                            eventData[key].sections.forEach(section => {
+                                if (section.sectors) {
+                                    section.sectors.forEach(sector => {
+                                        if (!sector.responsables) sector.responsables = [];
+                                        if (!sector.employees) sector.employees = [];
+                                        if (!sector.note) sector.note = '';
+                                        if (!sector.location) sector.location = '';
+                                    });
+                                }
+                            });
+                        }
+                        if (eventData[key].sectors) {
+                            eventData[key].sectors.forEach(sector => {
+                                if (!sector.responsables) sector.responsables = [];
+                                if (!sector.employees) sector.employees = [];
+                                if (!sector.note) sector.note = '';
+                                if (!sector.location) sector.location = '';
+                            });
+                        }
                     }
                 }
                 
@@ -365,15 +387,31 @@ async function initializeData() {
 }
 
 async function saveData() {
+    console.log('💾 Tentative de sauvegarde...');
     try {
         const dataToSave = {
             employees: allEmployees,
             ...eventData
         };
+        console.log('📦 Données à sauvegarder:', dataToSave);
+        
         await set(ref(database, '/'), dataToSave);
-        console.log('✅ Données sauvegardées dans Firebase');
+        console.log('✅ Données sauvegardées dans Firebase avec succès !');
+        
+        // Vérification immédiate
+        const snapshot = await get(ref(database, '/'));
+        if (snapshot.exists()) {
+            console.log('✅ Vérification: Données bien présentes dans Firebase');
+        } else {
+            console.error('⚠️ Vérification: Données non trouvées après sauvegarde !');
+        }
     } catch (error) {
         console.error('❌ Erreur lors de la sauvegarde:', error);
+        console.error('❌ Détails:', error.message);
+        console.error('❌ Code:', error.code);
+        
+        // Afficher une alerte à l'utilisateur
+        alert('⚠️ Erreur de sauvegarde Firebase:\n' + error.message + '\n\nVérifiez:\n1. La connexion Internet\n2. Les règles Firebase\n3. La console (F12)');
     }
 }
 
@@ -1212,11 +1250,14 @@ function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionCo
     // ✅ DEMANDE #3 : Appliquer la couleur de fond pastel à toute la ligne de secteur
     row.style.backgroundColor = sectionColor;
     
+    // ✅ INITIALISER LES CHAMPS MANQUANTS
+    if (!sector.note) sector.note = '';
+    if (!sector.responsables) sector.responsables = [];
+    if (!sector.employees) sector.employees = [];
+    if (!sector.location) sector.location = '';
+    
     const infoCell = document.createElement('div');
     infoCell.className = 'sector-cell';
-    
-    // ✅ Initialiser la note si elle n'existe pas
-    if (!sector.note) sector.note = '';
     
     // ✅ Déterminer la classe du bouton note (avec ou sans note)
     const noteClass = sector.note.trim() ? 'btn-note-filled' : 'btn-note-empty';
