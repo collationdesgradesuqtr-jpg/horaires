@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cérémonie des grades 2026</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- 🎨 ENTÊTE MODERNE ET PROFESSIONNELLE -->
+    <header class="modern-header">
+        <div class="header-container">
+            <!-- Logo et titre -->
+            <div class="header-brand">
+                <div class="logo-image-container">
+                    <img src="collation-img.jpg" alt="Collation des grades" class="header-logo-collation">
+                </div>
+                <div class="logo-image-container">
+                    <img src="h-UQTR.png" alt="UQTR" class="header-logo-uqtr">
+                </div>
+            </div>
+            
+            <!-- Boutons de mode -->
+            <div class="mode-buttons">
+                <button id="modeEmployee" class="mode-btn active" data-mode="employee">
+                    <span class="mode-icon">👤</span>
+                    <span class="mode-label">Employé</span>
+                </button>
+                <button id="modeRead" class="mode-btn" data-mode="read">
+                    <span class="mode-icon">📖</span>
+                    <span class="mode-label">Lecture</span>
+                </button>
+                <button id="modeAdmin" class="mode-btn" data-mode="admin">
+                    <span class="mode-icon">🔐</span>
+                    <span class="mode-label">Admin</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Barre de navigation secondaire -->
+    <nav class="secondary-nav" id="employeeNav">
+        <div class="nav-container">
+            <div class="employee-selector-wrapper">
+                <label for="employeeSelect" class="selector-label">
+                    <span class="selector-icon">👤</span>
+                    Sélectionnez votre nom
+                </label>
+                <select id="employeeSelect" class="modern-select">
+                    <option value="">-- Choisir un employé --</option>
+                </select>
+            </div>
+            
+            <div class="action-buttons">
+                <button id="exportEmployeeBtn" class="action-btn export-btn" style="display:none;">
+                    <span class="btn-icon">📄</span>
+                    <span class="btn-text">Exporter mes horaires</span>
+                </button>
+                <button id="exportPdfBtn" class="action-btn pdf-btn" style="display:none;">
+                    <span class="btn-icon">🖨️</span>
+                    <span class="btn-text">Imprimer PDF</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Barre de navigation pour mode Lecture -->
+    <nav class="secondary-nav" id="readNav" style="display:none;">
+        <div class="nav-container">
+            <div class="action-buttons" style="margin-left: auto;">
+                <button id="exportTemplateBtn" class="action-btn export-btn">
+                    <span class="btn-icon">📄</span>
+                    <span class="btn-text">Exporter la cérémonie</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sélecteur d'événement + Bouton Admin -->
+    <div class="event-selector-wrapper admin-bar">
+        <div class="container">
+            <div class="event-admin-container">
+                <select id="eventSelector" class="modern-select event-select">
+                    <option value="montage">Montage dimanche (8h30 à 15h00)</option>
+                    <option value="ceremonie1" selected>Cérémonie 1 - Lundi 9 juin 2025 - 10h</option>
+                    <option value="ceremonie2">Cérémonie 2 - Lundi 9 juin 2025 - 13h</option>
+                    <option value="ceremonie3">Cérémonie 3 - Lundi 9 juin 2025 - 16h</option>
+                    <option value="ceremonie4">Cérémonie 4 - Mardi 10 juin 2025 - 10h</option>
+                    <option value="ceremonie5">Cérémonie 5 - Mardi 10 juin 2025 - 13h</option>
+                    <option value="ceremonie6">Cérémonie 6 - Mardi 10 juin 2025 - 16h</option>
+                    <option value="demontage">Démontage mercredi (8h30 à 11h00)</option>
+                </select>
+                
+                <!-- Bouton Admin (visible seulement en mode admin) -->
+                <button id="manageEmployeesListBtn" class="admin-btn-inline" style="display:none;">
+                    <span class="admin-btn-icon">👥</span>
+                    <span class="admin-btn-text">Gérer la liste des employés</span>
+                </button>
+            </div>
+        </div>
+    </div>
+                    <span class="admin-btn-text">Charger un template</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenu principal -->
+    <main class="main-content">
+        <div class="container">
+            <div id="mainContent"></div>
+        </div>
+    </main>
+
+    <!-- Modal: Login Admin -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content modern-modal">
+            <div class="modal-header">
+                <h2 class="modal-title">🔐 Connexion Admin</h2>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="adminPassword" class="form-label">Mot de passe</label>
+                    <input 
+                        type="password" 
+                        id="adminPassword" 
+                        class="form-input" 
+                        placeholder="Entrez le mot de passe admin"
+                        autocomplete="off"
+                    >
+                    <p id="loginError" class="error-message"></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="loginBtn" class="modal-btn primary">
+                    <span class="btn-icon">✓</span>
+                    Se connecter
+                </button>
+                <button id="cancelLoginBtn" class="modal-btn secondary">
+                    <span class="btn-icon">✕</span>
+                    Annuler
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Gérer les employés d'un secteur -->
+    <div id="manageEmployeesModal" class="modal">
+        <div class="modal-content modern-modal large-modal">
+            <div class="modal-header">
+                <h2 class="modal-title">👥 Gestion des employés</h2>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button id="cancelManageEmployees" class="modal-btn secondary">
+                    <span class="btn-icon">✕</span>
+                    Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Gérer la liste globale des employés -->
+    <div id="manageEmployeesListModal" class="modal">
+        <div class="modal-content modern-modal large-modal">
+            <div class="modal-header">
+                <h2 class="modal-title">📋 Liste globale des employés</h2>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button onclick="document.getElementById('manageEmployeesListModal').style.display='none'" class="modal-btn secondary">
+                    <span class="btn-icon">✕</span>
+                    Fermer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Éditer un secteur -->
+    <div id="editSectorModal" class="modal">
+        <div class="modal-content modern-modal">
+            <div class="modal-header">
+                <h2 class="modal-title">✏️ Modifier le secteur</h2>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button id="cancelEditSectorBtn" class="modal-btn secondary">
+                    <span class="btn-icon">✕</span>
+                    Annuler
+                </button>
+                <button id="saveEditSectorBtn" class="modal-btn primary">
+                    <span class="btn-icon">✓</span>
+                    Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Renommer une cérémonie -->
+    <div id="renameCeremonyModal" class="modal">
+        <div class="modal-content modern-modal">
+            <div class="modal-header">
+                <h2 class="modal-title">📅 Renommer la cérémonie</h2>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button id="cancelRenameCeremonyBtn" class="modal-btn secondary">
+                    <span class="btn-icon">✕</span>
+                    Annuler
+                </button>
+                <button id="saveRenameCeremonyBtn" class="modal-btn primary">
+                    <span class="btn-icon">✓</span>
+                    Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Note de secteur -->
+    <div id="sectorNoteModal" class="modal">
+        <div class="modal-content modern-modal">
+            <div class="modal-header">
+                <h2 class="modal-title">📝 Note du secteur</h2>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button id="cancelSectorNoteBtn" class="modal-btn secondary">
+                    <span class="btn-icon">✕</span>
+                    Annuler
+                </button>
+                <button id="saveSectorNoteBtn" class="modal-btn primary">
+                    <span class="btn-icon">✓</span>
+                    Enregistrer
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
