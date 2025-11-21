@@ -377,6 +377,7 @@ async function initializeData() {
                     console.log('📋 Événements disponibles:', Object.keys(eventData));
                 }
                 updateEmployeeSelect();
+                updateEventSelector(); // ✅ Mettre à jour le menu déroulant
             } else {
                 console.log('⚠️ Aucune donnée - initialisation');
                 allEmployees = initialData.employees;
@@ -505,14 +506,8 @@ function renameCeremony(eventName) {
         if (newTitle) {
             eventData[eventName].title = newTitle;
             
-            // ✅ Mettre à jour le menu déroulant immédiatement
-            const eventSelector = document.getElementById('eventSelector');
-            const option = eventSelector.querySelector(`option[value="${eventName}"]`);
-            if (option) {
-                option.textContent = newTitle;
-            }
-            
             saveData();
+            updateEventSelector(); // ✅ Mettre à jour le menu
             renderEvent(currentEvent);
             modal.style.display = 'none';
             console.log(`✅ Cérémonie "${eventName}" renommée en "${newTitle}" + menu déroulant mis à jour`);
@@ -531,6 +526,29 @@ function renameCeremony(eventName) {
             newSaveBtn.click();
         }
     });
+}
+
+// ✅ NOUVELLE FONCTION : Mettre à jour le menu déroulant
+function updateEventSelector() {
+    const eventSelector = document.getElementById('eventSelector');
+    const currentValue = eventSelector.value; // Sauvegarder la sélection actuelle
+    
+    // Vider et reconstruire le menu
+    eventSelector.innerHTML = '';
+    
+    // Ajouter toutes les options depuis eventData
+    for (const key in eventData) {
+        const event = eventData[key];
+        const option = document.createElement('option');
+        option.value = key;
+        option.textContent = event.title;
+        if (key === currentValue) {
+            option.selected = true;
+        }
+        eventSelector.appendChild(option);
+    }
+    
+    console.log('✅ Menu déroulant mis à jour');
 }
 
 function renderEvent(eventName) {
