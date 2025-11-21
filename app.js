@@ -322,28 +322,39 @@ async function initializeData() {
     console.log('📥 Chargement des données...');
     try {
         const dataRef = ref(database, '/');
-        const snapshot = await get(dataRef);
         
-        if (snapshot.exists()) {
-            const data = snapshot.val();
-            console.log('✅ Données chargées depuis Firebase:', data);
-            allEmployees = data.employees || initialData.employees;
-            eventData = { ...initialData };
-            for (const key in data) {
-                if (key !== 'employees' && data[key]) {
-                    eventData[key] = data[key];
+        // ✅ ÉCOUTER LES CHANGEMENTS EN TEMPS RÉEL
+        onValue(dataRef, (snapshot) => {
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                console.log('🔄 Données mises à jour depuis Firebase');
+                allEmployees = data.employees || initialData.employees;
+                
+                // Mettre à jour eventData
+                const oldEventData = { ...eventData };
+                eventData = { ...initialData };
+                for (const key in data) {
+                    if (key !== 'employees' && data[key]) {
+                        eventData[key] = data[key];
+                    }
                 }
+                
+                // Re-render uniquement si on est sur un événement existant
+                if (eventData[currentEvent]) {
+                    renderEvent(currentEvent);
+                }
+                updateEmployeeSelect();
+            } else {
+                console.log('⚠️ Aucune donnée - initialisation');
+                allEmployees = initialData.employees;
+                eventData = { ...initialData };
+                saveData();
             }
-        } else {
-            console.log('⚠️ Aucune donnée - initialisation');
-            allEmployees = initialData.employees;
-            eventData = { ...initialData };
-            await saveData();
-        }
+        }, (error) => {
+            console.error('❌ Erreur lors de l\'écoute Firebase:', error);
+        });
         
-        renderEvent(currentEvent);
-        updateEmployeeSelect();
-        console.log('✅ Données initialisées');
+        console.log('✅ Synchronisation temps réel activée');
     } catch (error) {
         console.error('❌ Erreur lors du chargement:', error);
         allEmployees = initialData.employees;
