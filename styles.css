@@ -609,6 +609,15 @@ body::before {
     color: var(--primary);
 }
 
+/* ✅ Nom du secteur - même style que les headers */
+.sector-name {
+    font-weight: 700;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #2c3e50;
+}
+
 .employee-item {
     padding: 10px 15px;
     background: rgba(255, 255, 255, 0.95); /* ✅ Fond blanc semi-transparent sur fond coloré */
