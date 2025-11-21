@@ -330,9 +330,17 @@ async function initializeData() {
                 console.log('🔄 Données mises à jour depuis Firebase');
                 allEmployees = data.employees || initialData.employees;
                 
-                // Mettre à jour eventData avec validation
-                const oldEventData = { ...eventData };
-                eventData = { ...initialData };
+                // ✅ Fusionner avec initialData (ne pas écraser complètement)
+                eventData = {};
+                
+                // D'abord, prendre tous les templates de initialData
+                for (const key in initialData) {
+                    if (key !== 'employees') {
+                        eventData[key] = { ...initialData[key] };
+                    }
+                }
+                
+                // Ensuite, écraser avec les données Firebase
                 for (const key in data) {
                     if (key !== 'employees' && data[key]) {
                         eventData[key] = data[key];
@@ -364,6 +372,9 @@ async function initializeData() {
                 // Re-render uniquement si on est sur un événement existant
                 if (eventData[currentEvent]) {
                     renderEvent(currentEvent);
+                } else {
+                    console.warn('⚠️ Événement', currentEvent, 'non trouvé dans eventData');
+                    console.log('📋 Événements disponibles:', Object.keys(eventData));
                 }
                 updateEmployeeSelect();
             } else {
