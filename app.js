@@ -585,6 +585,12 @@ function renderEvent(eventName) {
             
             if (section.sectors && section.sectors.length > 0) {
                 section.sectors.forEach((sector, sectorIndex) => {
+                    // ✅ VALIDER le secteur avant de le rendre
+                    if (!sector.responsables) sector.responsables = [];
+                    if (!sector.employees) sector.employees = [];
+                    if (!sector.note) sector.note = '';
+                    if (!sector.location) sector.location = '';
+                    
                     const sectorRow = createSectorRow(sector, eventName, sectionIndex, sectorIndex, backgroundColor, buttonColor);
                     sectionDiv.appendChild(sectorRow);
                 });
@@ -607,6 +613,12 @@ function renderEvent(eventName) {
         const montageButtonColor = '#5bc0de'; // Bleu moyen pour boutons
         
         event.sectors.forEach((sector, sectorIndex) => {
+            // ✅ VALIDER le secteur avant de le rendre
+            if (!sector.responsables) sector.responsables = [];
+            if (!sector.employees) sector.employees = [];
+            if (!sector.note) sector.note = '';
+            if (!sector.location) sector.location = '';
+            
             const sectorRow = createSectorRow(sector, eventName, null, sectorIndex, montageBackgroundColor, montageButtonColor);
             mainContent.appendChild(sectorRow);
         });
