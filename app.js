@@ -1,6 +1,7 @@
 // Configuration Firebase
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 const firebaseConfig = {
     apiKey: "AIzaSyDIxy8lZQoy1SCIP_ZWkyqIyK2qCJ6XweA",
@@ -12,11 +13,21 @@ const firebaseConfig = {
     appId: "1:1022452597434:web:890047Abcda9afc4347883"
 };
 
-let app, database;
+let app, database, auth;
 try {
     app = initializeApp(firebaseConfig);
     database = getDatabase(app);
+    auth = getAuth(app);
     console.log('✅ Firebase initialisé');
+    
+    // Authentification anonyme automatique
+    signInAnonymously(auth)
+        .then(() => {
+            console.log('✅ Authentification anonyme réussie');
+        })
+        .catch((error) => {
+            console.error('❌ Erreur d\'authentification:', error);
+        });
 } catch (error) {
     console.error('❌ Erreur Firebase:', error);
 }
