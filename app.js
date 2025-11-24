@@ -14,20 +14,33 @@ const firebaseConfig = {
 };
 
 let app, database, auth;
+let isAuthReady = false;
+
 try {
     app = initializeApp(firebaseConfig);
     database = getDatabase(app);
     auth = getAuth(app);
     console.log('✅ Firebase initialisé');
     
-    // Authentification anonyme automatique
-    signInAnonymously(auth)
-        .then(() => {
-            console.log('✅ Authentification anonyme réussie');
-        })
-        .catch((error) => {
-            console.error('❌ Erreur d\'authentification:', error);
-        });
+    // Attendre que l'authentification soit prête
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            console.log('✅ Utilisateur authentifié:', user.uid);
+            isAuthReady = true;
+        } else {
+            console.log('⏳ Authentification en cours...');
+            // Authentification anonyme automatique
+            signInAnonymously(auth)
+                .then(() => {
+                    console.log('✅ Authentification anonyme réussie');
+                    isAuthReady = true;
+                })
+                .catch((error) => {
+                    console.error('❌ Erreur d\'authentification:', error);
+                    alert('⚠️ Erreur d\'authentification. Veuillez recharger la page.');
+                });
+        }
+    });
 } catch (error) {
     console.error('❌ Erreur Firebase:', error);
 }
@@ -411,6 +424,34 @@ async function initializeData() {
 
 async function saveData() {
     console.log('💾 Tentative de sauvegarde...');
+    
+    // Vérifier l'authentification
+    if (!isAuthReady) {
+        console.log('⏳ Attente de l\'authentification...');
+        // Attendre jusqu'à 5 secondes pour l'authentification
+        let waitTime = 0;
+        while (!isAuthReady && waitTime < 5000) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            waitTime += 100;
+        }
+        
+        if (!isAuthReady) {
+            console.error('❌ Authentification non prête après 5 secondes');
+            alert('⚠️ Erreur: Authentification non prête.\n\nVeuillez attendre quelques secondes et réessayer.\n\nSi le problème persiste:\n1. Rechargez la page (F5)\n2. Vérifiez que l\'authentification anonyme est activée dans Firebase');
+            return;
+        }
+    }
+    
+    // Vérifier que l'utilisateur est connecté
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+        console.error('❌ Aucun utilisateur authentifié');
+        alert('⚠️ Erreur: Vous n\'êtes pas authentifié.\n\nVeuillez recharger la page (F5)');
+        return;
+    }
+    
+    console.log('✅ Utilisateur authentifié, sauvegarde en cours...');
+    
     try {
         const dataToSave = {
             employees: allEmployees,
@@ -433,8 +474,25 @@ async function saveData() {
         console.error('❌ Détails:', error.message);
         console.error('❌ Code:', error.code);
         
-        // Afficher une alerte à l'utilisateur
-        alert('⚠️ Erreur de sauvegarde Firebase:\n' + error.message + '\n\nVérifiez:\n1. La connexion Internet\n2. Les règles Firebase\n3. La console (F12)');
+        // Message d'erreur amélioré
+        let errorMessage = '⚠️ Erreur de sauvegarde Firebase:\n' + error.message + '\n\n';
+        
+        if (error.code === 'PERMISSION_DENIED') {
+            errorMessage += 'CAUSE PROBABLE:\n';
+            errorMessage += '❌ L\'authentification anonyme n\'est pas activée dans Firebase\n\n';
+            errorMessage += 'SOLUTION:\n';
+            errorMessage += '1. Allez sur console.firebase.google.com\n';
+            errorMessage += '2. Authentication → Sign-in method\n';
+            errorMessage += '3. Activez "Anonymous"\n';
+            errorMessage += '4. Rechargez cette page\n';
+        } else {
+            errorMessage += 'Vérifiez:\n';
+            errorMessage += '1. La connexion Internet\n';
+            errorMessage += '2. Les règles Firebase\n';
+            errorMessage += '3. La console (F12)\n';
+        }
+        
+        alert(errorMessage);
     }
 }
 
@@ -1656,4 +1714,9 @@ function copyTemplateToAllCeremonies() {
     }
 }
 
+
+console.log('🚀 Application Cérémonie des Grades - Démarrage...');
+console.log('🔐 Système d\'authentification: ACTIVÉ');
+console.log('⏳ Initialisation de l\'authentification Firebase...');
+console.log('📌 Note: Attendez le message "✅ Authentification anonyme réussie" avant de modifier des données');
 
