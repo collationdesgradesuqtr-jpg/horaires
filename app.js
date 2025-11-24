@@ -4,13 +4,13 @@ import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/fir
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDIxy8lZQoy1SCIP_ZWkyqIyK2qCJ6XweA",
-    authDomain: "ceremonie-grades.firebaseapp.com",
-    databaseURL: "https://ceremomie-grades-default-rtdb.firebaseio.com", // ✅ CORRIGÉ : ceremOmie
-    projectId: "ceremonie-grades",
-    storageBucket: "ceremonie-grades.firebasestorage.app",
-    messagingSenderId: "1022452597434",
-    appId: "1:1022452597434:web:890047Abcda9afc4347883"
+    apiKey: "AIzaSyDIxy8JZQoy1SCIP_ZWkyqIyK2qCJ6XveA",
+  authDomain: "ceremomie-grades.firebaseapp.com",
+  databaseURL: "https://ceremomie-grades-default-rtdb.firebaseio.com",
+  projectId: "ceremomie-grades",
+  storageBucket: "ceremomie-grades.firebasestorage.app",
+  messagingSenderId: "1022452597434",
+  appId: "1:1022452597434:web:8900474bbda9afc4347883"
 };
 
 let app, database, auth;
