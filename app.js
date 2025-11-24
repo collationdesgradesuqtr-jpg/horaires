@@ -436,19 +436,23 @@ function setMode(mode) {
     const employeeNav = document.getElementById('employeeNav');
     const readNav = document.getElementById('readNav');
     const manageEmployeesBtn = document.getElementById('manageEmployeesListBtn');
+    const copyTemplateBtn = document.getElementById('copyTemplateBtn');
     
     if (mode === 'employee') {
         employeeNav.style.display = 'block';
         readNav.style.display = 'none';
         if (manageEmployeesBtn) manageEmployeesBtn.style.display = 'none';
+        if (copyTemplateBtn) copyTemplateBtn.style.display = 'none';
     } else if (mode === 'read') {
         employeeNav.style.display = 'none';
         readNav.style.display = 'block';
         if (manageEmployeesBtn) manageEmployeesBtn.style.display = 'none';
+        if (copyTemplateBtn) copyTemplateBtn.style.display = 'none';
     } else if (mode === 'admin') {
         employeeNav.style.display = 'none';
         readNav.style.display = 'none';
         if (manageEmployeesBtn) manageEmployeesBtn.style.display = 'inline-flex';
+        if (copyTemplateBtn) copyTemplateBtn.style.display = 'inline-flex';
     }
     
     renderEvent(currentEvent);
@@ -1431,6 +1435,7 @@ document.getElementById('exportEmployeeBtn').addEventListener('click', exportEmp
 document.getElementById('exportPdfBtn').addEventListener('click', () => window.print());
 document.getElementById('exportTemplateBtn').addEventListener('click', exportTemplate);
 document.getElementById('manageEmployeesListBtn').addEventListener('click', showManageEmployeesList);
+document.getElementById('copyTemplateBtn').addEventListener('click', copyTemplateToAllCeremonies);
 
 document.getElementById('cancelManageEmployees').addEventListener('click', () => {
     console.log('🔴 Fermeture du modal manageEmployeesModal');
@@ -1472,6 +1477,7 @@ window.addNewEmployeeToList = addNewEmployeeToList;
 window.removeEmployeeFromList = removeEmployeeFromList;
 window.exportTemplate = exportTemplate;
 window.manageSectorNote = manageSectorNote;
+window.copyTemplateToAllCeremonies = copyTemplateToAllCeremonies;
 
 console.log('🚀 Démarrage...');
 console.log('🔍 Vérification des fonctions globales:');
@@ -1553,4 +1559,90 @@ function manageSectorNote(eventName, sectionIndex, sectorIndex) {
         modal.style.display = 'none';
     };
 }
+
+// ✅ NOUVELLE FONCTION : Copier le template de la cérémonie 1 vers les autres cérémonies
+function copyTemplateToAllCeremonies() {
+    // Confirmation avant de copier
+    const confirmation = confirm(
+        '📋 COPIER LE TEMPLATE DE LA CÉRÉMONIE 1\n\n' +
+        'Cette action va copier TOUS les employés, responsables et notes\n' +
+        'de la Cérémonie 1 vers les Cérémonies 2, 3, 4, 5 et 6.\n\n' +
+        '⚠️ Les données actuelles des cérémonies 2-6 seront ÉCRASÉES.\n\n' +
+        'Voulez-vous continuer ?'
+    );
+    
+    if (!confirmation) {
+        console.log('❌ Copie de template annulée par l\'utilisateur');
+        return;
+    }
+    
+    try {
+        console.log('📋 Début de la copie du template de la cérémonie 1...');
+        
+        // Vérifier que la cérémonie 1 existe
+        if (!eventData.ceremonie1 || !eventData.ceremonie1.sections) {
+            alert('❌ Erreur: La cérémonie 1 n\'existe pas ou est invalide.');
+            return;
+        }
+        
+        // Fonction pour copier en profondeur (deep copy)
+        function deepCopy(obj) {
+            return JSON.parse(JSON.stringify(obj));
+        }
+        
+        // Copier les sections de la cérémonie 1
+        const templateSections = deepCopy(eventData.ceremonie1.sections);
+        
+        // Liste des cérémonies cibles
+        const targetCeremonies = ['ceremonie2', 'ceremonie3', 'ceremonie4', 'ceremonie5', 'ceremonie6'];
+        let copiedCount = 0;
+        
+        // Copier vers chaque cérémonie
+        targetCeremonies.forEach(ceremonyKey => {
+            if (eventData[ceremonyKey]) {
+                console.log(`📝 Copie vers ${ceremonyKey}...`);
+                
+                // Sauvegarder le titre original
+                const originalTitle = eventData[ceremonyKey].title;
+                
+                // Copier toutes les sections avec les données
+                eventData[ceremonyKey].sections = deepCopy(templateSections);
+                
+                // Restaurer le titre original
+                eventData[ceremonyKey].title = originalTitle;
+                
+                copiedCount++;
+                console.log(`✅ ${ceremonyKey} mise à jour avec succès`);
+            } else {
+                console.warn(`⚠️ ${ceremonyKey} n'existe pas dans eventData`);
+            }
+        });
+        
+        // Sauvegarder dans Firebase
+        console.log('💾 Sauvegarde dans Firebase...');
+        saveData();
+        
+        // Message de confirmation
+        alert(
+            '✅ COPIE RÉUSSIE !\n\n' +
+            `Le template de la Cérémonie 1 a été copié vers ${copiedCount} cérémonies.\n\n` +
+            'Toutes les affectations d\'employés, responsables et notes\n' +
+            'ont été dupliquées avec succès.'
+        );
+        
+        console.log(`✅ Copie terminée avec succès ! ${copiedCount} cérémonies mises à jour.`);
+        
+        // Rafraîchir l'affichage
+        renderEvent(currentEvent);
+        
+    } catch (error) {
+        console.error('❌ Erreur lors de la copie du template:', error);
+        alert(
+            '❌ ERREUR lors de la copie du template\n\n' +
+            'Détails: ' + error.message + '\n\n' +
+            'Veuillez vérifier la console (F12) pour plus d\'informations.'
+        );
+    }
+}
+
 
