@@ -1,21 +1,20 @@
 // Configuration Firebase
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
-import { getAuth, signInAnonymously, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDIxy8JZQoy1SCIP_ZWkyqIyK2qCJ6XveA",
-  authDomain: "ceremomie-grades.firebaseapp.com",
-  databaseURL: "https://ceremomie-grades-default-rtdb.firebaseio.com",
-  projectId: "ceremomie-grades",
-  storageBucket: "ceremomie-grades.firebasestorage.app",
-  messagingSenderId: "1022452597434",
-  appId: "1:1022452597434:web:8900474bbda9afc4347883"
+    apiKey: "AIzaSyDIxy8lZQoy1SCIP_ZWkyqIyK2qCJ6XweA",
+    authDomain: "ceremonie-grades.firebaseapp.com",
+    databaseURL: "https://ceremomie-grades-default-rtdb.firebaseio.com", // ✅ CORRIGÉ : ceremOmie
+    projectId: "ceremonie-grades",
+    storageBucket: "ceremonie-grades.firebasestorage.app",
+    messagingSenderId: "1022452597434",
+    appId: "1:1022452597434:web:890047Abcda9afc4347883"
 };
 
 let app, database, auth;
 let isAuthReady = false;
-let isAdminAuthenticated = false; // Nouveau: vérifie si l'admin est connecté
 
 try {
     app = initializeApp(firebaseConfig);
@@ -51,6 +50,8 @@ let currentEvent = 'ceremonie1';
 let currentEmployeeName = '';
 let allEmployees = [];
 let eventData = {};
+
+const ADMIN_PASSWORD = 'admin2026';
 
 // 🎨 COULEURS DES SECTIONS (FOND TRÈS PÂLE + TEXTE NOIR) - ✅ DEMANDE #3
 const sectionColors = {
@@ -524,7 +525,6 @@ function setMode(mode) {
     const manageEmployeesBtn = document.getElementById('manageEmployeesListBtn');
     const copyTemplateBtn = document.getElementById('copyTemplateBtn');
     const migrateStructureBtn = document.getElementById('migrateStructureBtn');
-    const logoutBtn = document.getElementById('logoutAdminBtn');
     
     if (mode === 'employee') {
         employeeNav.style.display = 'block';
@@ -532,21 +532,18 @@ function setMode(mode) {
         if (manageEmployeesBtn) manageEmployeesBtn.style.display = 'none';
         if (copyTemplateBtn) copyTemplateBtn.style.display = 'none';
         if (migrateStructureBtn) migrateStructureBtn.style.display = 'none';
-        if (logoutBtn) logoutBtn.style.display = 'none';
     } else if (mode === 'read') {
         employeeNav.style.display = 'none';
         readNav.style.display = 'block';
         if (manageEmployeesBtn) manageEmployeesBtn.style.display = 'none';
         if (copyTemplateBtn) copyTemplateBtn.style.display = 'none';
         if (migrateStructureBtn) migrateStructureBtn.style.display = 'none';
-        if (logoutBtn) logoutBtn.style.display = 'none';
     } else if (mode === 'admin') {
         employeeNav.style.display = 'none';
         readNav.style.display = 'none';
         if (manageEmployeesBtn) manageEmployeesBtn.style.display = 'inline-flex';
         if (copyTemplateBtn) copyTemplateBtn.style.display = 'inline-flex';
         if (migrateStructureBtn) migrateStructureBtn.style.display = 'inline-flex';
-        if (logoutBtn) logoutBtn.style.display = 'inline-flex';
     }
     
     renderEvent(currentEvent);
@@ -1494,76 +1491,15 @@ async function deleteSector(eventName, sectionIndex, sectorIndex) {
     renderEvent(currentEvent);
 }
 
-async function loginAdmin() {
-    const email = document.getElementById('adminEmail').value.trim();
+function loginAdmin() {
     const password = document.getElementById('adminPassword').value;
-    const errorDiv = document.getElementById('loginError');
-    
-    // Validation
-    if (!email || !password) {
-        errorDiv.textContent = 'Veuillez remplir tous les champs';
-        return;
-    }
-    
-    try {
-        errorDiv.textContent = '';
-        console.log('🔐 Tentative de connexion admin...');
-        
-        // Connexion avec Firebase Authentication
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
-        console.log('✅ Connexion admin réussie:', userCredential.user.email);
-        
-        isAdminAuthenticated = true;
+    if (password === ADMIN_PASSWORD) {
         setMode('admin');
         document.getElementById('loginModal').style.display = 'none';
-        document.getElementById('adminEmail').value = '';
         document.getElementById('adminPassword').value = '';
-        errorDiv.textContent = '';
-        
-        alert('✅ Connexion admin réussie !');
-        
-    } catch (error) {
-        console.error('❌ Erreur de connexion:', error);
-        isAdminAuthenticated = false;
-        
-        // Messages d'erreur personnalisés en français
-        let errorMessage = 'Erreur de connexion';
-        
-        switch (error.code) {
-            case 'auth/invalid-email':
-                errorMessage = 'Adresse email invalide';
-                break;
-            case 'auth/user-not-found':
-                errorMessage = 'Aucun compte trouvé avec cet email';
-                break;
-            case 'auth/wrong-password':
-                errorMessage = 'Mot de passe incorrect';
-                break;
-            case 'auth/invalid-credential':
-                errorMessage = 'Email ou mot de passe incorrect';
-                break;
-            case 'auth/too-many-requests':
-                errorMessage = 'Trop de tentatives. Réessayez plus tard';
-                break;
-            default:
-                errorMessage = `Erreur: ${error.message}`;
-        }
-        
-        errorDiv.textContent = errorMessage;
-    }
-}
-
-// Fonction pour déconnecter l'admin
-async function logoutAdmin() {
-    try {
-        await signOut(auth);
-        console.log('✅ Déconnexion réussie');
-        isAdminAuthenticated = false;
-        setMode('employee');
-        alert('Vous avez été déconnecté');
-    } catch (error) {
-        console.error('❌ Erreur de déconnexion:', error);
-        alert('Erreur lors de la déconnexion');
+        document.getElementById('loginError').textContent = '';
+    } else {
+        document.getElementById('loginError').textContent = 'Mot de passe incorrect';
     }
 }
 
@@ -1578,7 +1514,6 @@ document.getElementById('modeAdmin').addEventListener('click', () => {
 document.getElementById('loginBtn').addEventListener('click', loginAdmin);
 document.getElementById('cancelLoginBtn').addEventListener('click', () => {
     document.getElementById('loginModal').style.display = 'none';
-    document.getElementById('adminEmail').value = '';
     document.getElementById('adminPassword').value = '';
     document.getElementById('loginError').textContent = '';
 });
@@ -1594,7 +1529,6 @@ document.getElementById('exportTemplateBtn').addEventListener('click', exportTem
 document.getElementById('manageEmployeesListBtn').addEventListener('click', showManageEmployeesList);
 document.getElementById('copyTemplateBtn').addEventListener('click', copyTemplateToAllCeremonies);
 document.getElementById('migrateStructureBtn').addEventListener('click', migrateStructureToCeremonies);
-document.getElementById('logoutAdminBtn').addEventListener('click', logoutAdmin);
 
 document.getElementById('cancelManageEmployees').addEventListener('click', () => {
     console.log('🔴 Fermeture du modal manageEmployeesModal');
