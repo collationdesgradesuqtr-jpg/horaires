@@ -1,20 +1,21 @@
 // Configuration Firebase
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
-import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getAuth, signInAnonymously, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDIxy8JZQoy1SCIP_ZWkyqIyK2qCJ6XveA",
-  authDomain: "ceremomie-grades.firebaseapp.com",
-  databaseURL: "https://ceremomie-grades-default-rtdb.firebaseio.com",
-  projectId: "ceremomie-grades",
-  storageBucket: "ceremomie-grades.firebasestorage.app",
-  messagingSenderId: "1022452597434",
-  appId: "1:1022452597434:web:8900474bbda9afc4347883"
+    apiKey: "AIzaSyDIxy8lZQoy1SCIP_ZWkyqIyK2qCJ6XweA",
+    authDomain: "ceremonie-grades.firebaseapp.com",
+    databaseURL: "https://ceremomie-grades-default-rtdb.firebaseio.com", // ✅ CORRIGÉ : ceremOmie
+    projectId: "ceremonie-grades",
+    storageBucket: "ceremonie-grades.firebasestorage.app",
+    messagingSenderId: "1022452597434",
+    appId: "1:1022452597434:web:890047Abcda9afc4347883"
 };
 
 let app, database, auth;
 let isAuthReady = false;
+let isAdminAuthenticated = false; // Nouveau: vérifie si l'admin est connecté
 
 try {
     app = initializeApp(firebaseConfig);
@@ -50,8 +51,6 @@ let currentEvent = 'ceremonie1';
 let currentEmployeeName = '';
 let allEmployees = [];
 let eventData = {};
-
-const ADMIN_PASSWORD = 'admin2026';
 
 // 🎨 COULEURS DES SECTIONS (FOND TRÈS PÂLE + TEXTE NOIR) - ✅ DEMANDE #3
 const sectionColors = {
@@ -122,7 +121,10 @@ const initialData = {
                     { name: "Accueil des diplômés", location: "Salle d'accueil", responsables: [], employees: [] },
                     { name: "Préparation des diplômés (Toges)", location: "", responsables: [], employees: [] },
                     { name: "Préparation des diplômés (Épitoges)", location: "", responsables: [], employees: [] },
-                    { name: "Chapiteau des diplômés", location: "", responsables: [], employees: [] }
+                    { name: "Préparation des diplômés (Vestiaires et sacoche)", location: "", responsables: [], employees: [] },
+                    { name: "Préparation des diplômés (Mortier)", location: "", responsables: [], employees: [] },
+                    { name: "Chapiteau des diplômés", location: "", responsables: [], employees: [] },
+                    { name: "Consignes aux diplômés et gestion de la salle", location: "", responsables: [], employees: [] }
                 ]
             },
             {
@@ -135,17 +137,17 @@ const initialData = {
                     { name: "Escaliers côté jardin - Deuxième partie", location: "", responsables: [], employees: [] },
                     { name: "Escaliers côté cour - Deuxième partie", location: "", responsables: [], employees: [] },
                     { name: "Livre d'or - Première partie", location: "", responsables: [], employees: [] },
-                    { name: "Livre d'or - Deuxième partie", location: "", responsables: [], employees: [] },
-                    { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
-                    { name: "Équipe volante", location: "", responsables: [], employees: [] },
-                    { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
+                    { name: "Livre d'or - Deuxième partie", location: "", responsables: [], employees: [] }
                 ]
             },
             {
                 title: "APRÈS LA CÉRÉMONIE",
                 sectors: [
                     { name: "Retour des toges - Poste permanent", location: "Vestiaire", responsables: [], employees: [] },
-                    { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] }
+                    { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] },
+                    { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
+                    { name: "Équipe volante", location: "", responsables: [], employees: [] },
+                    { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
                 ]
             }
         ]
@@ -165,7 +167,10 @@ const initialData = {
                 { name: "Accueil des diplômés", location: "Salle d'accueil", responsables: [], employees: [] },
                 { name: "Préparation des diplômés (Toges)", location: "", responsables: [], employees: [] },
                 { name: "Préparation des diplômés (Épitoges)", location: "", responsables: [], employees: [] },
-                { name: "Chapiteau des diplômés", location: "", responsables: [], employees: [] }
+                { name: "Préparation des diplômés (Vestiaires et sacoche)", location: "", responsables: [], employees: [] },
+                { name: "Préparation des diplômés (Mortier)", location: "", responsables: [], employees: [] },
+                { name: "Chapiteau des diplômés", location: "", responsables: [], employees: [] },
+                { name: "Consignes aux diplômés et gestion de la salle", location: "", responsables: [], employees: [] }
             ]},
             { title: "PENDANT LA CÉRÉMONIE", sectors: [
                 { name: "Animation", location: "Scène principale", responsables: [], employees: [] },
@@ -175,14 +180,14 @@ const initialData = {
                 { name: "Escaliers côté jardin - Deuxième partie", location: "", responsables: [], employees: [] },
                 { name: "Escaliers côté cour - Deuxième partie", location: "", responsables: [], employees: [] },
                 { name: "Livre d'or - Première partie", location: "", responsables: [], employees: [] },
-                { name: "Livre d'or - Deuxième partie", location: "", responsables: [], employees: [] },
-                { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
-                { name: "Équipe volante", location: "", responsables: [], employees: [] },
-                { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
+                { name: "Livre d'or - Deuxième partie", location: "", responsables: [], employees: [] }
             ]},
             { title: "APRÈS LA CÉRÉMONIE", sectors: [
                 { name: "Retour des toges - Poste permanent", location: "Vestiaire", responsables: [], employees: [] },
-                { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] }
+                { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] },
+                { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
+                { name: "Équipe volante", location: "", responsables: [], employees: [] },
+                { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
             ]}
         ]
     },
@@ -201,7 +206,10 @@ const initialData = {
                 { name: "Accueil des diplômés", location: "Salle d'accueil", responsables: [], employees: [] },
                 { name: "Préparation des diplômés (Toges)", location: "", responsables: [], employees: [] },
                 { name: "Préparation des diplômés (Épitoges)", location: "", responsables: [], employees: [] },
-                { name: "Chapiteau des diplômés", location: "", responsables: [], employees: [] }
+                { name: "Préparation des diplômés (Vestiaires et sacoche)", location: "", responsables: [], employees: [] },
+                { name: "Préparation des diplômés (Mortier)", location: "", responsables: [], employees: [] },
+                { name: "Chapiteau des diplômés", location: "", responsables: [], employees: [] },
+                { name: "Consignes aux diplômés et gestion de la salle", location: "", responsables: [], employees: [] }
             ]},
             { title: "PENDANT LA CÉRÉMONIE", sectors: [
                 { name: "Animation", location: "Scène principale", responsables: [], employees: [] },
@@ -211,14 +219,14 @@ const initialData = {
                 { name: "Escaliers côté jardin - Deuxième partie", location: "", responsables: [], employees: [] },
                 { name: "Escaliers côté cour - Deuxième partie", location: "", responsables: [], employees: [] },
                 { name: "Livre d'or - Première partie", location: "", responsables: [], employees: [] },
-                { name: "Livre d'or - Deuxième partie", location: "", responsables: [], employees: [] },
-                { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
-                { name: "Équipe volante", location: "", responsables: [], employees: [] },
-                { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
+                { name: "Livre d'or - Deuxième partie", location: "", responsables: [], employees: [] }
             ]},
             { title: "APRÈS LA CÉRÉMONIE", sectors: [
                 { name: "Retour des toges - Poste permanent", location: "Vestiaire", responsables: [], employees: [] },
-                { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] }
+                { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] },
+                { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
+                { name: "Équipe volante", location: "", responsables: [], employees: [] },
+                { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
             ]}
         ]
     },
@@ -237,7 +245,10 @@ const initialData = {
                 { name: "Accueil des diplômés", location: "Salle d'accueil", responsables: [], employees: [] },
                 { name: "Préparation des diplômés (Toges)", location: "", responsables: [], employees: [] },
                 { name: "Préparation des diplômés (Épitoges)", location: "", responsables: [], employees: [] },
-                { name: "Chapiteau des diplômés", location: "", responsables: [], employees: [] }
+                { name: "Préparation des diplômés (Vestiaires et sacoche)", location: "", responsables: [], employees: [] },
+                { name: "Préparation des diplômés (Mortier)", location: "", responsables: [], employees: [] },
+                { name: "Chapiteau des diplômés", location: "", responsables: [], employees: [] },
+                { name: "Consignes aux diplômés et gestion de la salle", location: "", responsables: [], employees: [] }
             ]},
             { title: "PENDANT LA CÉRÉMONIE", sectors: [
                 { name: "Animation", location: "Scène principale", responsables: [], employees: [] },
@@ -247,14 +258,14 @@ const initialData = {
                 { name: "Escaliers côté jardin - Deuxième partie", location: "", responsables: [], employees: [] },
                 { name: "Escaliers côté cour - Deuxième partie", location: "", responsables: [], employees: [] },
                 { name: "Livre d'or - Première partie", location: "", responsables: [], employees: [] },
-                { name: "Livre d'or - Deuxième partie", location: "", responsables: [], employees: [] },
-                { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
-                { name: "Équipe volante", location: "", responsables: [], employees: [] },
-                { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
+                { name: "Livre d'or - Deuxième partie", location: "", responsables: [], employees: [] }
             ]},
             { title: "APRÈS LA CÉRÉMONIE", sectors: [
                 { name: "Retour des toges - Poste permanent", location: "Vestiaire", responsables: [], employees: [] },
-                { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] }
+                { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] },
+                { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
+                { name: "Équipe volante", location: "", responsables: [], employees: [] },
+                { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
             ]}
         ]
     },
@@ -273,7 +284,10 @@ const initialData = {
                 { name: "Accueil des diplômés", location: "Salle d'accueil", responsables: [], employees: [] },
                 { name: "Préparation des diplômés (Toges)", location: "", responsables: [], employees: [] },
                 { name: "Préparation des diplômés (Épitoges)", location: "", responsables: [], employees: [] },
-                { name: "Chapiteau des diplômés", location: "", responsables: [], employees: [] }
+                { name: "Préparation des diplômés (Vestiaires et sacoche)", location: "", responsables: [], employees: [] },
+                { name: "Préparation des diplômés (Mortier)", location: "", responsables: [], employees: [] },
+                { name: "Chapiteau des diplômés", location: "", responsables: [], employees: [] },
+                { name: "Consignes aux diplômés et gestion de la salle", location: "", responsables: [], employees: [] }
             ]},
             { title: "PENDANT LA CÉRÉMONIE", sectors: [
                 { name: "Animation", location: "Scène principale", responsables: [], employees: [] },
@@ -283,14 +297,14 @@ const initialData = {
                 { name: "Escaliers côté jardin - Deuxième partie", location: "", responsables: [], employees: [] },
                 { name: "Escaliers côté cour - Deuxième partie", location: "", responsables: [], employees: [] },
                 { name: "Livre d'or - Première partie", location: "", responsables: [], employees: [] },
-                { name: "Livre d'or - Deuxième partie", location: "", responsables: [], employees: [] },
-                { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
-                { name: "Équipe volante", location: "", responsables: [], employees: [] },
-                { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
+                { name: "Livre d'or - Deuxième partie", location: "", responsables: [], employees: [] }
             ]},
             { title: "APRÈS LA CÉRÉMONIE", sectors: [
                 { name: "Retour des toges - Poste permanent", location: "Vestiaire", responsables: [], employees: [] },
-                { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] }
+                { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] },
+                { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
+                { name: "Équipe volante", location: "", responsables: [], employees: [] },
+                { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
             ]}
         ]
     },
@@ -309,7 +323,10 @@ const initialData = {
                 { name: "Accueil des diplômés", location: "Salle d'accueil", responsables: [], employees: [] },
                 { name: "Préparation des diplômés (Toges)", location: "", responsables: [], employees: [] },
                 { name: "Préparation des diplômés (Épitoges)", location: "", responsables: [], employees: [] },
-                { name: "Chapiteau des diplômés", location: "", responsables: [], employees: [] }
+                { name: "Préparation des diplômés (Vestiaires et sacoche)", location: "", responsables: [], employees: [] },
+                { name: "Préparation des diplômés (Mortier)", location: "", responsables: [], employees: [] },
+                { name: "Chapiteau des diplômés", location: "", responsables: [], employees: [] },
+                { name: "Consignes aux diplômés et gestion de la salle", location: "", responsables: [], employees: [] }
             ]},
             { title: "PENDANT LA CÉRÉMONIE", sectors: [
                 { name: "Animation", location: "Scène principale", responsables: [], employees: [] },
@@ -319,14 +336,14 @@ const initialData = {
                 { name: "Escaliers côté jardin - Deuxième partie", location: "", responsables: [], employees: [] },
                 { name: "Escaliers côté cour - Deuxième partie", location: "", responsables: [], employees: [] },
                 { name: "Livre d'or - Première partie", location: "", responsables: [], employees: [] },
-                { name: "Livre d'or - Deuxième partie", location: "", responsables: [], employees: [] },
-                { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
-                { name: "Équipe volante", location: "", responsables: [], employees: [] },
-                { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
+                { name: "Livre d'or - Deuxième partie", location: "", responsables: [], employees: [] }
             ]},
             { title: "APRÈS LA CÉRÉMONIE", sectors: [
                 { name: "Retour des toges - Poste permanent", location: "Vestiaire", responsables: [], employees: [] },
-                { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] }
+                { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] },
+                { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
+                { name: "Équipe volante", location: "", responsables: [], employees: [] },
+                { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
             ]}
         ]
     },
@@ -506,22 +523,30 @@ function setMode(mode) {
     const readNav = document.getElementById('readNav');
     const manageEmployeesBtn = document.getElementById('manageEmployeesListBtn');
     const copyTemplateBtn = document.getElementById('copyTemplateBtn');
+    const migrateStructureBtn = document.getElementById('migrateStructureBtn');
+    const logoutBtn = document.getElementById('logoutAdminBtn');
     
     if (mode === 'employee') {
         employeeNav.style.display = 'block';
         readNav.style.display = 'none';
         if (manageEmployeesBtn) manageEmployeesBtn.style.display = 'none';
         if (copyTemplateBtn) copyTemplateBtn.style.display = 'none';
+        if (migrateStructureBtn) migrateStructureBtn.style.display = 'none';
+        if (logoutBtn) logoutBtn.style.display = 'none';
     } else if (mode === 'read') {
         employeeNav.style.display = 'none';
         readNav.style.display = 'block';
         if (manageEmployeesBtn) manageEmployeesBtn.style.display = 'none';
         if (copyTemplateBtn) copyTemplateBtn.style.display = 'none';
+        if (migrateStructureBtn) migrateStructureBtn.style.display = 'none';
+        if (logoutBtn) logoutBtn.style.display = 'none';
     } else if (mode === 'admin') {
         employeeNav.style.display = 'none';
         readNav.style.display = 'none';
         if (manageEmployeesBtn) manageEmployeesBtn.style.display = 'inline-flex';
         if (copyTemplateBtn) copyTemplateBtn.style.display = 'inline-flex';
+        if (migrateStructureBtn) migrateStructureBtn.style.display = 'inline-flex';
+        if (logoutBtn) logoutBtn.style.display = 'inline-flex';
     }
     
     renderEvent(currentEvent);
@@ -1469,14 +1494,76 @@ async function deleteSector(eventName, sectionIndex, sectorIndex) {
     renderEvent(currentEvent);
 }
 
-function loginAdmin() {
+async function loginAdmin() {
+    const email = document.getElementById('adminEmail').value.trim();
     const password = document.getElementById('adminPassword').value;
-    if (password === ADMIN_PASSWORD) {
+    const errorDiv = document.getElementById('loginError');
+    
+    // Validation
+    if (!email || !password) {
+        errorDiv.textContent = 'Veuillez remplir tous les champs';
+        return;
+    }
+    
+    try {
+        errorDiv.textContent = '';
+        console.log('🔐 Tentative de connexion admin...');
+        
+        // Connexion avec Firebase Authentication
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        console.log('✅ Connexion admin réussie:', userCredential.user.email);
+        
+        isAdminAuthenticated = true;
         setMode('admin');
         document.getElementById('loginModal').style.display = 'none';
+        document.getElementById('adminEmail').value = '';
         document.getElementById('adminPassword').value = '';
-    } else {
-        document.getElementById('loginError').textContent = 'Mot de passe incorrect';
+        errorDiv.textContent = '';
+        
+        alert('✅ Connexion admin réussie !');
+        
+    } catch (error) {
+        console.error('❌ Erreur de connexion:', error);
+        isAdminAuthenticated = false;
+        
+        // Messages d'erreur personnalisés en français
+        let errorMessage = 'Erreur de connexion';
+        
+        switch (error.code) {
+            case 'auth/invalid-email':
+                errorMessage = 'Adresse email invalide';
+                break;
+            case 'auth/user-not-found':
+                errorMessage = 'Aucun compte trouvé avec cet email';
+                break;
+            case 'auth/wrong-password':
+                errorMessage = 'Mot de passe incorrect';
+                break;
+            case 'auth/invalid-credential':
+                errorMessage = 'Email ou mot de passe incorrect';
+                break;
+            case 'auth/too-many-requests':
+                errorMessage = 'Trop de tentatives. Réessayez plus tard';
+                break;
+            default:
+                errorMessage = `Erreur: ${error.message}`;
+        }
+        
+        errorDiv.textContent = errorMessage;
+    }
+}
+
+// Fonction pour déconnecter l'admin
+async function logoutAdmin() {
+    try {
+        await signOut(auth);
+        console.log('✅ Déconnexion réussie');
+        isAdminAuthenticated = false;
+        setMode('employee');
+        alert('Vous avez été déconnecté');
+    } catch (error) {
+        console.error('❌ Erreur de déconnexion:', error);
+        alert('Erreur lors de la déconnexion');
     }
 }
 
@@ -1491,6 +1578,7 @@ document.getElementById('modeAdmin').addEventListener('click', () => {
 document.getElementById('loginBtn').addEventListener('click', loginAdmin);
 document.getElementById('cancelLoginBtn').addEventListener('click', () => {
     document.getElementById('loginModal').style.display = 'none';
+    document.getElementById('adminEmail').value = '';
     document.getElementById('adminPassword').value = '';
     document.getElementById('loginError').textContent = '';
 });
@@ -1505,6 +1593,8 @@ document.getElementById('exportPdfBtn').addEventListener('click', () => window.p
 document.getElementById('exportTemplateBtn').addEventListener('click', exportTemplate);
 document.getElementById('manageEmployeesListBtn').addEventListener('click', showManageEmployeesList);
 document.getElementById('copyTemplateBtn').addEventListener('click', copyTemplateToAllCeremonies);
+document.getElementById('migrateStructureBtn').addEventListener('click', migrateStructureToCeremonies);
+document.getElementById('logoutAdminBtn').addEventListener('click', logoutAdmin);
 
 document.getElementById('cancelManageEmployees').addEventListener('click', () => {
     console.log('🔴 Fermeture du modal manageEmployeesModal');
@@ -1547,6 +1637,7 @@ window.removeEmployeeFromList = removeEmployeeFromList;
 window.exportTemplate = exportTemplate;
 window.manageSectorNote = manageSectorNote;
 window.copyTemplateToAllCeremonies = copyTemplateToAllCeremonies;
+window.migrateStructureToCeremonies = migrateStructureToCeremonies;
 
 console.log('🚀 Démarrage...');
 console.log('🔍 Vérification des fonctions globales:');
@@ -1710,6 +1801,172 @@ function copyTemplateToAllCeremonies() {
             '❌ ERREUR lors de la copie du template\n\n' +
             'Détails: ' + error.message + '\n\n' +
             'Veuillez vérifier la console (F12) pour plus d\'informations.'
+        );
+    }
+}
+
+
+// ✅ NOUVELLE FONCTION : Migrer la structure des cérémonies
+function migrateStructureToCeremonies() {
+    const confirmation = confirm(
+        '🔄 MISE À JOUR DE LA STRUCTURE\n\n' +
+        'Cette action va mettre à jour la structure des 6 cérémonies :\n\n' +
+        '✅ Ajouter 3 nouveaux secteurs dans AVANT\n' +
+        '✅ Déplacer 3 secteurs de PENDANT vers APRÈS\n' +
+        '✅ Conserver TOUTES vos affectations actuelles\n\n' +
+        'Vos employés, responsables et notes seront préservés.\n\n' +
+        'Voulez-vous continuer ?'
+    );
+    
+    if (!confirmation) {
+        console.log('❌ Migration annulée par l\'utilisateur');
+        return;
+    }
+    
+    try {
+        console.log('🔄 Début de la migration de structure...');
+        
+        const ceremoniesToMigrate = ['ceremonie1', 'ceremonie2', 'ceremonie3', 'ceremonie4', 'ceremonie5', 'ceremonie6'];
+        let migratedCount = 0;
+        
+        ceremoniesToMigrate.forEach(ceremonyKey => {
+            if (!eventData[ceremonyKey] || !eventData[ceremonyKey].sections) {
+                console.warn(`⚠️ ${ceremonyKey} n'existe pas ou est invalide`);
+                return;
+            }
+            
+            console.log(`📝 Migration de ${ceremonyKey}...`);
+            
+            const sections = eventData[ceremonyKey].sections;
+            
+            // Trouver les sections AVANT, PENDANT, APRÈS
+            const avantSection = sections.find(s => s.title === 'AVANT LA CÉRÉMONIE' || s.title === 'AVANT');
+            const pendantSection = sections.find(s => s.title === 'PENDANT LA CÉRÉMONIE' || s.title === 'PENDANT');
+            const apresSection = sections.find(s => s.title === 'APRÈS LA CÉRÉMONIE' || s.title === 'APRÈS');
+            
+            if (!avantSection || !pendantSection || !apresSection) {
+                console.error(`❌ Sections manquantes pour ${ceremonyKey}`);
+                return;
+            }
+            
+            // === ÉTAPE 1 : AJOUTER les nouveaux secteurs dans AVANT ===
+            
+            // Trouver l'index de "Préparation des diplômés (Épitoges)"
+            const epitogesIndex = avantSection.sectors.findIndex(s => s.name === "Préparation des diplômés (Épitoges)");
+            
+            if (epitogesIndex !== -1) {
+                // Vérifier si les nouveaux secteurs existent déjà
+                const hasVestiaires = avantSection.sectors.some(s => s.name === "Préparation des diplômés (Vestiaires et sacoche)");
+                const hasMortier = avantSection.sectors.some(s => s.name === "Préparation des diplômés (Mortier)");
+                
+                if (!hasVestiaires) {
+                    avantSection.sectors.splice(epitogesIndex + 1, 0, {
+                        name: "Préparation des diplômés (Vestiaires et sacoche)",
+                        location: "",
+                        responsables: [],
+                        employees: [],
+                        note: ""
+                    });
+                    console.log(`  ✅ Ajout: Vestiaires et sacoche`);
+                }
+                
+                if (!hasMortier) {
+                    const newEpitogesIndex = avantSection.sectors.findIndex(s => s.name === "Préparation des diplômés (Épitoges)");
+                    const insertIndex = hasVestiaires ? newEpitogesIndex + 2 : newEpitogesIndex + 1;
+                    avantSection.sectors.splice(insertIndex, 0, {
+                        name: "Préparation des diplômés (Mortier)",
+                        location: "",
+                        responsables: [],
+                        employees: [],
+                        note: ""
+                    });
+                    console.log(`  ✅ Ajout: Mortier`);
+                }
+            }
+            
+            // Trouver l'index de "Chapiteau des diplômés"
+            const chapiteauIndex = avantSection.sectors.findIndex(s => s.name === "Chapiteau des diplômés");
+            
+            if (chapiteauIndex !== -1) {
+                const hasConsignes = avantSection.sectors.some(s => s.name === "Consignes aux diplômés et gestion de la salle");
+                
+                if (!hasConsignes) {
+                    avantSection.sectors.splice(chapiteauIndex + 1, 0, {
+                        name: "Consignes aux diplômés et gestion de la salle",
+                        location: "",
+                        responsables: [],
+                        employees: [],
+                        note: ""
+                    });
+                    console.log(`  ✅ Ajout: Consignes aux diplômés`);
+                }
+            }
+            
+            // === ÉTAPE 2 : DÉPLACER les secteurs de PENDANT vers APRÈS ===
+            
+            const secteursADeplacer = [
+                "Popcorn au chapiteau",
+                "Équipe volante",
+                "Équipe de coordination"
+            ];
+            
+            secteursADeplacer.forEach(nomSecteur => {
+                // Trouver le secteur dans PENDANT
+                const indexInPendant = pendantSection.sectors.findIndex(s => s.name === nomSecteur);
+                
+                if (indexInPendant !== -1) {
+                    // Vérifier s'il n'est pas déjà dans APRÈS
+                    const existsInApres = apresSection.sectors.some(s => s.name === nomSecteur);
+                    
+                    if (!existsInApres) {
+                        // Extraire le secteur avec toutes ses données
+                        const secteur = pendantSection.sectors[indexInPendant];
+                        
+                        // Retirer de PENDANT
+                        pendantSection.sectors.splice(indexInPendant, 1);
+                        
+                        // Ajouter à APRÈS
+                        apresSection.sectors.push(secteur);
+                        
+                        console.log(`  ✅ Déplacé: ${nomSecteur} (PENDANT → APRÈS)`);
+                    } else {
+                        // S'il existe déjà dans APRÈS, juste le retirer de PENDANT
+                        pendantSection.sectors.splice(indexInPendant, 1);
+                        console.log(`  ✅ Retiré de PENDANT: ${nomSecteur} (déjà dans APRÈS)`);
+                    }
+                }
+            });
+            
+            migratedCount++;
+            console.log(`✅ ${ceremonyKey} migrée avec succès`);
+        });
+        
+        // Sauvegarder dans Firebase
+        console.log('💾 Sauvegarde dans Firebase...');
+        saveData();
+        
+        // Message de confirmation
+        alert(
+            '✅ MIGRATION RÉUSSIE !\n\n' +
+            `${migratedCount} cérémonies ont été mises à jour.\n\n` +
+            '✅ 3 nouveaux secteurs ajoutés dans AVANT\n' +
+            '✅ 3 secteurs déplacés vers APRÈS\n' +
+            '✅ Toutes vos affectations sont conservées\n\n' +
+            'Rechargez la page pour voir les changements.'
+        );
+        
+        console.log(`✅ Migration terminée avec succès ! ${migratedCount} cérémonies mises à jour.`);
+        
+        // Rafraîchir l'affichage
+        renderEvent(currentEvent);
+        
+    } catch (error) {
+        console.error('❌ Erreur lors de la migration:', error);
+        alert(
+            '❌ ERREUR lors de la migration\n\n' +
+            'Détails: ' + error.message + '\n\n' +
+            'Veuillez vérifier la console (F12) pour plus d\'informations.\n' +
+            'Vos données n\'ont PAS été modifiées.'
         );
     }
 }
