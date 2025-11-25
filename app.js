@@ -524,26 +524,22 @@ function setMode(mode) {
     const readNav = document.getElementById('readNav');
     const manageEmployeesBtn = document.getElementById('manageEmployeesListBtn');
     const copyTemplateBtn = document.getElementById('copyTemplateBtn');
-    const migrateStructureBtn = document.getElementById('migrateStructureBtn');
     
     if (mode === 'employee') {
         employeeNav.style.display = 'block';
         readNav.style.display = 'none';
         if (manageEmployeesBtn) manageEmployeesBtn.style.display = 'none';
         if (copyTemplateBtn) copyTemplateBtn.style.display = 'none';
-        if (migrateStructureBtn) migrateStructureBtn.style.display = 'none';
     } else if (mode === 'read') {
         employeeNav.style.display = 'none';
         readNav.style.display = 'block';
         if (manageEmployeesBtn) manageEmployeesBtn.style.display = 'none';
         if (copyTemplateBtn) copyTemplateBtn.style.display = 'none';
-        if (migrateStructureBtn) migrateStructureBtn.style.display = 'none';
     } else if (mode === 'admin') {
         employeeNav.style.display = 'none';
         readNav.style.display = 'none';
         if (manageEmployeesBtn) manageEmployeesBtn.style.display = 'inline-flex';
         if (copyTemplateBtn) copyTemplateBtn.style.display = 'inline-flex';
-        if (migrateStructureBtn) migrateStructureBtn.style.display = 'inline-flex';
     }
     
     renderEvent(currentEvent);
@@ -1528,7 +1524,6 @@ document.getElementById('exportPdfBtn').addEventListener('click', () => window.p
 document.getElementById('exportTemplateBtn').addEventListener('click', exportTemplate);
 document.getElementById('manageEmployeesListBtn').addEventListener('click', showManageEmployeesList);
 document.getElementById('copyTemplateBtn').addEventListener('click', copyTemplateToAllCeremonies);
-document.getElementById('migrateStructureBtn').addEventListener('click', migrateStructureToCeremonies);
 
 document.getElementById('cancelManageEmployees').addEventListener('click', () => {
     console.log('🔴 Fermeture du modal manageEmployeesModal');
@@ -1571,7 +1566,6 @@ window.removeEmployeeFromList = removeEmployeeFromList;
 window.exportTemplate = exportTemplate;
 window.manageSectorNote = manageSectorNote;
 window.copyTemplateToAllCeremonies = copyTemplateToAllCeremonies;
-window.migrateStructureToCeremonies = migrateStructureToCeremonies;
 
 console.log('🚀 Démarrage...');
 console.log('🔍 Vérification des fonctions globales:');
