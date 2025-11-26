@@ -2041,26 +2041,39 @@ async function migrateToNewStructure() {
                 console.log(`  🔍 "Retour des toges réguliers" existe déjà? ${hasRetourReguliers}`);
                 
                 if (!hasRetourReguliers) {
-                    // Trouver l'index de "Retour des toges - Régulier et équipe volante"
-                    const regulierIndex = apresSection.sectors.findIndex(s => 
-                        s.name === "Retour des toges - Régulier et équipe volante"
-                    );
+                    // Chercher le dernier secteur contenant "Retour des toges"
+                    let lastRetourIndex = -1;
+                    for (let i = apresSection.sectors.length - 1; i >= 0; i--) {
+                        if (apresSection.sectors[i].name.toLowerCase().includes("retour des toges")) {
+                            lastRetourIndex = i;
+                            break;
+                        }
+                    }
                     
-                    console.log(`  🔍 Index de "Régulier et équipe volante": ${regulierIndex}`);
+                    console.log(`  🔍 Dernier secteur "Retour des toges" trouvé à l'index: ${lastRetourIndex}`);
                     
-                    if (regulierIndex !== -1) {
-                        // Ajouter juste après
-                        apresSection.sectors.splice(regulierIndex + 1, 0, {
+                    if (lastRetourIndex !== -1) {
+                        // Ajouter juste après le dernier secteur "Retour des toges"
+                        apresSection.sectors.splice(lastRetourIndex + 1, 0, {
                             name: "Retour des toges réguliers",
                             location: "",
                             responsables: [],
                             employees: [],
                             note: ""
                         });
-                        console.log(`  ✅ ${ceremonyKey}: Ajout "Retour des toges réguliers" effectué!`);
+                        console.log(`  ✅ ${ceremonyKey}: Ajout "Retour des toges réguliers" à l'index ${lastRetourIndex + 1}!`);
                         addedRetourCount++;
                     } else {
-                        console.log(`  ⚠️ ${ceremonyKey}: Secteur "Régulier et équipe volante" non trouvé`);
+                        // Si aucun secteur "Retour des toges", ajouter au début
+                        apresSection.sectors.unshift({
+                            name: "Retour des toges réguliers",
+                            location: "",
+                            responsables: [],
+                            employees: [],
+                            note: ""
+                        });
+                        console.log(`  ✅ ${ceremonyKey}: Ajout "Retour des toges réguliers" au début!`);
+                        addedRetourCount++;
                     }
                 } else {
                     console.log(`  ℹ️ ${ceremonyKey}: "Retour des toges réguliers" existe déjà, ignoré`);
