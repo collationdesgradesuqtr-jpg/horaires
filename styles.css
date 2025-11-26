@@ -1418,12 +1418,12 @@ body::before {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   📝 BOUTONS NOTE ET MODAL
+   📝 BOUTONS NOTE ET MODAL (Notes toujours visibles)
    ═══════════════════════════════════════════════════════════════════════ */
 
 .btn-note {
-    background: #e9ecef;
-    border: 2px solid #dee2e6;
+    background: #fffbf0; /* ✅ Fond orange pâle fixe */
+    border: 2px solid #ffc107;
     color: #6c757d;
     font-size: 18px;
     padding: 8px 12px;
@@ -1432,28 +1432,21 @@ body::before {
     transition: all 0.3s ease;
 }
 
+/* ✅ Classes vides - plus de distinction entre vide et rempli */
 .btn-note-empty {
-    background: #f8f9fa;
-    border-color: #dee2e6;
-    color: #adb5bd;
+    /* Supprimé - bouton note a toujours le même style */
 }
 
 .btn-note-empty:hover {
-    background: #e9ecef;
-    border-color: #adb5bd;
-    transform: scale(1.05);
+    /* Supprimé - pas de changement au survol */
 }
 
 .btn-note-filled {
-    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
-    border-color: #ffc107;
-    color: white;
-    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+    /* Supprimé - bouton note a toujours le même style */
 }
 
 .btn-note-filled:hover {
-    transform: scale(1.1);
-    box-shadow: 0 4px 12px rgba(255, 193, 7, 0.5);
+    /* Supprimé - pas de changement au survol */
 }
 
 .note-header-info {
@@ -1534,68 +1527,39 @@ body::before {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   💬 TOOLTIP BULLE POUR LES NOTES (Mode Employé/Lecture)
+   💬 TOOLTIP SUPPRIMÉ - Notes toujours visibles en ligne
    ═══════════════════════════════════════════════════════════════════════ */
 
-.btn-note {
-    position: relative;
-}
+/* Tooltip désactivé - les notes sont toujours affichées */
 
-.note-tooltip {
-    display: none;
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    margin-bottom: 10px;
+/* ═══════════════════════════════════════════════════════════════════════
+   📝 AFFICHAGE NOTE TOUJOURS VISIBLE (sous chaque secteur)
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.note-display-inline {
+    grid-column: 1 / 3; /* S'étend sur les colonnes secteur et lieu, mais pas responsables */
+    margin-top: 10px;
     padding: 12px 16px;
-    background: linear-gradient(135deg, #fff3cd 0%, #fffbf0 100%);
+    background: #fffbf0; /* ✅ Fond orange pâle */
     border: 2px solid #ffc107;
-    border-radius: 10px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    min-width: 200px;
-    max-width: 350px;
-    z-index: 1000;
+    border-radius: 8px;
     font-size: 14px;
-    line-height: 1.5;
+    line-height: 1.6;
     color: #2c3e50;
     white-space: pre-wrap;
     word-wrap: break-word;
-    text-align: left;
+    box-shadow: 0 2px 6px rgba(255, 193, 7, 0.15);
 }
 
-/* Flèche du tooltip */
-.note-tooltip::after {
-    content: '';
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 8px solid transparent;
-    border-top-color: #ffc107;
-}
-
-/* Afficher le tooltip au survol */
-.btn-note:hover .note-tooltip {
-    display: block;
-    animation: fadeInTooltip 0.3s ease;
-}
-
-@keyframes fadeInTooltip {
-    from {
-        opacity: 0;
-        transform: translateX(-50%) translateY(-5px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-    }
+.note-display-inline strong {
+    color: #d4af37;
+    margin-right: 8px;
 }
 
 /* Ajustement pour mobile */
 @media (max-width: 768px) {
-    .note-tooltip {
-        max-width: 250px;
+    .note-display-inline {
+        grid-column: 1 / -1;
         font-size: 13px;
     }
 }

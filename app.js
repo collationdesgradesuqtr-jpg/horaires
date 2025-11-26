@@ -57,14 +57,16 @@ const ADMIN_PASSWORD = 'admin2026';
 const sectionColors = {
     'AVANT': '#d4edda',     // 🟢 VERT TRÈS PÂLE (pastel)
     'PENDANT': '#fff3cd',   // 🟡 JAUNE TRÈS PÂLE (pastel)  
-    'APRES': '#f8d7da'      // 🔴 ROUGE TRÈS PÂLE (pastel)
+    'APRES': '#f8d7da',     // 🔴 ROUGE TRÈS PÂLE (pastel)
+    'GENERAL': '#cfe2ff'    // 🔵 BLEU PÂLE (pastel)
 };
 
 // 🎨 COULEURS FONCÉES pour les boutons (plus visibles)
 const sectionColorsDark = {
     'AVANT': '#28a745',     // 🟢 VERT FONCÉ pour boutons
     'PENDANT': '#ffc107',   // 🟡 JAUNE/ORANGE FONCÉ pour boutons  
-    'APRES': '#dc3545'      // 🔴 ROUGE FONCÉ pour boutons
+    'APRES': '#dc3545',     // 🔴 ROUGE FONCÉ pour boutons
+    'GENERAL': '#0d6efd'    // 🔵 BLEU FONCÉ pour boutons
 };
 
 // DONNÉES INITIALES
@@ -146,9 +148,16 @@ const initialData = {
                 sectors: [
                     { name: "Retour des toges - Poste permanent", location: "Vestiaire", responsables: [], employees: [] },
                     { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] },
+                    { name: "Retour des toges réguliers", location: "", responsables: [], employees: [] },
                     { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
                     { name: "Équipe volante", location: "", responsables: [], employees: [] },
                     { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
+                ]
+            },
+            {
+                title: "GÉNÉRAL",
+                sectors: [
+                    { name: "Notes générales", location: "", responsables: [], employees: [] }
                 ]
             }
         ]
@@ -186,9 +195,13 @@ const initialData = {
             { title: "APRÈS LA CÉRÉMONIE", sectors: [
                 { name: "Retour des toges - Poste permanent", location: "Vestiaire", responsables: [], employees: [] },
                 { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] },
+                { name: "Retour des toges réguliers", location: "", responsables: [], employees: [] },
                 { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
                 { name: "Équipe volante", location: "", responsables: [], employees: [] },
                 { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
+            ]},
+            { title: "GÉNÉRAL", sectors: [
+                { name: "Notes générales", location: "", responsables: [], employees: [] }
             ]}
         ]
     },
@@ -225,9 +238,13 @@ const initialData = {
             { title: "APRÈS LA CÉRÉMONIE", sectors: [
                 { name: "Retour des toges - Poste permanent", location: "Vestiaire", responsables: [], employees: [] },
                 { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] },
+                { name: "Retour des toges réguliers", location: "", responsables: [], employees: [] },
                 { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
                 { name: "Équipe volante", location: "", responsables: [], employees: [] },
                 { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
+            ]},
+            { title: "GÉNÉRAL", sectors: [
+                { name: "Notes générales", location: "", responsables: [], employees: [] }
             ]}
         ]
     },
@@ -264,9 +281,13 @@ const initialData = {
             { title: "APRÈS LA CÉRÉMONIE", sectors: [
                 { name: "Retour des toges - Poste permanent", location: "Vestiaire", responsables: [], employees: [] },
                 { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] },
+                { name: "Retour des toges réguliers", location: "", responsables: [], employees: [] },
                 { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
                 { name: "Équipe volante", location: "", responsables: [], employees: [] },
                 { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
+            ]},
+            { title: "GÉNÉRAL", sectors: [
+                { name: "Notes générales", location: "", responsables: [], employees: [] }
             ]}
         ]
     },
@@ -303,9 +324,13 @@ const initialData = {
             { title: "APRÈS LA CÉRÉMONIE", sectors: [
                 { name: "Retour des toges - Poste permanent", location: "Vestiaire", responsables: [], employees: [] },
                 { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] },
+                { name: "Retour des toges réguliers", location: "", responsables: [], employees: [] },
                 { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
                 { name: "Équipe volante", location: "", responsables: [], employees: [] },
                 { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
+            ]},
+            { title: "GÉNÉRAL", sectors: [
+                { name: "Notes générales", location: "", responsables: [], employees: [] }
             ]}
         ]
     },
@@ -342,9 +367,13 @@ const initialData = {
             { title: "APRÈS LA CÉRÉMONIE", sectors: [
                 { name: "Retour des toges - Poste permanent", location: "Vestiaire", responsables: [], employees: [] },
                 { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] },
+                { name: "Retour des toges réguliers", location: "", responsables: [], employees: [] },
                 { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
                 { name: "Équipe volante", location: "", responsables: [], employees: [] },
                 { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
+            ]},
+            { title: "GÉNÉRAL", sectors: [
+                { name: "Notes générales", location: "", responsables: [], employees: [] }
             ]}
         ]
     },
@@ -678,6 +707,9 @@ function renderEvent(eventName) {
             } else if (section.title.includes('APRÈS') || section.title.includes('APRES')) {
                 backgroundColor = sectionColors['APRES']; // Rose pâle
                 buttonColor = sectionColorsDark['APRES']; // Rouge foncé pour boutons
+            } else if (section.title.includes('GÉNÉRAL') || section.title.includes('GENERAL')) {
+                backgroundColor = sectionColors['GENERAL']; // Bleu pâle
+                buttonColor = sectionColorsDark['GENERAL']; // Bleu foncé pour boutons
             }
             
             const sectionHeader = document.createElement('div');
@@ -1391,27 +1423,17 @@ function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionCo
     const infoCell = document.createElement('div');
     infoCell.className = 'sector-cell';
     
-    // ✅ Déterminer la classe du bouton note (avec ou sans note)
-    const noteClass = sector.note.trim() ? 'btn-note-filled' : 'btn-note-empty';
+    // ✅ Bouton note toujours visible avec fond orange pâle
+    const noteClass = 'btn-note'; // Classe unique, pas de distinction vide/rempli
     
     // ✅ En mode admin : modal éditable
-    // ✅ En mode employé/lecture : tooltip au survol
+    // ✅ En mode employé/lecture : pas de tooltip, note affichée en dessous
     let noteButton = '';
     if (appMode === 'admin') {
-        noteButton = `<button class="btn btn-note btn-sm ${noteClass}" onclick="manageSectorNote('${eventName}', ${sectionIndex}, ${sectorIndex})" title="${sector.note.trim() ? 'Modifier la note' : 'Ajouter une note'}">📝</button>`;
+        noteButton = `<button class="btn btn-note btn-sm" onclick="manageSectorNote('${eventName}', ${sectionIndex}, ${sectorIndex})" title="${sector.note.trim() ? 'Modifier la note' : 'Ajouter une note'}">📝</button>`;
     } else {
-        // Mode lecture : tooltip au survol
-        if (sector.note.trim()) {
-            const noteEscaped = sector.note.replace(/'/g, '&apos;').replace(/"/g, '&quot;').replace(/\n/g, '<br>');
-            noteButton = `
-                <button class="btn btn-note btn-sm ${noteClass}" title="Voir la note">
-                    📝
-                    <div class="note-tooltip">${noteEscaped}</div>
-                </button>
-            `;
-        } else {
-            noteButton = `<button class="btn btn-note btn-sm ${noteClass}" title="Aucune note">📝</button>`;
-        }
+        // Mode lecture : bouton simple, note affichée en dessous
+        noteButton = `<button class="btn btn-note btn-sm" title="Note">📝</button>`;
     }
     
     infoCell.innerHTML = `
@@ -1471,6 +1493,14 @@ function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionCo
         } else {
             console.warn('❌ Bouton Employés NON trouvé');
         }
+    }
+    
+    // ✅ Afficher la note toujours visible sous le secteur (si elle existe)
+    if (sector.note && sector.note.trim()) {
+        const noteDisplay = document.createElement('div');
+        noteDisplay.className = 'note-display-inline';
+        noteDisplay.innerHTML = `<strong>📝 Note:</strong> ${sector.note.replace(/\n/g, '<br>')}`;
+        row.appendChild(noteDisplay);
     }
     
     return row;
