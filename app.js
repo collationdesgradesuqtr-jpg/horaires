@@ -1,3 +1,4 @@
+// ✅ VERSION CORRIGEE 26-NOV-2025 20:30 - MIGRATION AMELIOREE
 // Configuration Firebase
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
