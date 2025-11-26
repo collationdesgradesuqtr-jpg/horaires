@@ -2160,3 +2160,40 @@ console.log('🔐 Système d\'authentification: ACTIVÉ');
 console.log('⏳ Initialisation de l\'authentification Firebase...');
 console.log('📌 Note: Attendez le message "✅ Authentification anonyme réussie" avant de modifier des données');
 
+
+// ✅ FORCER l'affichage des notes avant l'impression
+window.addEventListener('beforeprint', () => {
+    console.log('🖨️ Préparation de l'impression...');
+    
+    // Forcer l'affichage de toutes les notes
+    document.querySelectorAll('.note-display-inline').forEach(note => {
+        note.style.display = 'block';
+        note.style.visibility = 'visible';
+        note.style.gridColumn = '1 / 4';
+        note.style.pageBreakInside = 'avoid';
+        console.log('✅ Note forcée visible:', note);
+    });
+    
+    // Gérer la section GÉNÉRAL
+    document.querySelectorAll('.sector-row-general').forEach(row => {
+        row.style.display = 'block';
+        row.style.background = '#cfe2ff';
+        
+        // Masquer les colonnes 2 et 3 (Responsables et Employés)
+        const cells = row.querySelectorAll('.sector-cell');
+        if (cells.length >= 3) {
+            cells[1].style.display = 'none'; // Responsables
+            cells[2].style.display = 'none'; // Employés
+        }
+        console.log('✅ Section GÉNÉRAL préparée pour impression');
+    });
+    
+    console.log('✅ Préparation terminée');
+});
+
+window.addEventListener('afterprint', () => {
+    console.log('🖨️ Impression terminée, restauration...');
+    // Pas besoin de restaurer, le CSS normal reprendra le dessus
+});
+
+
