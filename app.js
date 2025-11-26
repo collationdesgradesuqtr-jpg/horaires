@@ -559,6 +559,10 @@ function setMode(mode) {
         readNav.style.display = 'none';
         if (manageEmployeesBtn) manageEmployeesBtn.style.display = 'none';
         if (copyTemplateBtn) copyTemplateBtn.style.display = 'none';
+        const migrateBtnHide2 = document.getElementById('migrateStructureBtn');
+        if (migrateBtnHide2) migrateBtnHide2.style.display = 'none';
+        const migrateBtnHide1 = document.getElementById('migrateStructureBtn');
+        if (migrateBtnHide1) migrateBtnHide1.style.display = 'none';
     } else if (mode === 'read') {
         employeeNav.style.display = 'none';
         readNav.style.display = 'block';
@@ -569,6 +573,8 @@ function setMode(mode) {
         readNav.style.display = 'none';
         if (manageEmployeesBtn) manageEmployeesBtn.style.display = 'inline-flex';
         if (copyTemplateBtn) copyTemplateBtn.style.display = 'inline-flex';
+        const migrateBtn = document.getElementById('migrateStructureBtn');
+        if (migrateBtn) migrateBtn.style.display = 'inline-flex';
     }
     
     renderEvent(currentEvent);
@@ -1554,6 +1560,7 @@ document.getElementById('exportPdfBtn').addEventListener('click', () => window.p
 document.getElementById('exportTemplateBtn').addEventListener('click', exportTemplate);
 document.getElementById('manageEmployeesListBtn').addEventListener('click', showManageEmployeesList);
 document.getElementById('copyTemplateBtn').addEventListener('click', copyTemplateToAllCeremonies);
+document.getElementById('migrateStructureBtn').addEventListener('click', migrateToNewStructure);
 
 document.getElementById('cancelManageEmployees').addEventListener('click', () => {
     console.log('🔴 Fermeture du modal manageEmployeesModal');
