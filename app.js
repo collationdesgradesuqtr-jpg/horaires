@@ -1500,6 +1500,14 @@ function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionCo
         }
     }
     
+    // ✅ Afficher la note toujours visible sous le secteur (si elle existe)
+    if (sector.note && sector.note.trim()) {
+        const noteDisplay = document.createElement('div');
+        noteDisplay.className = 'note-display-inline';
+        noteDisplay.innerHTML = '<strong>📝 Note:</strong> ' + sector.note.replace(/\n/g, '<br>');
+        row.appendChild(noteDisplay);
+    }
+    
     return row;
 }
 
