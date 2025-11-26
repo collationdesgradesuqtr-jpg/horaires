@@ -880,7 +880,8 @@ body::before {
     .event-selector-wrapper,
     .admin-controls,
     .mode-buttons,
-    .action-buttons {
+    .action-buttons,
+    .btn {
         display: none !important;
     }
     
@@ -888,6 +889,31 @@ body::before {
         box-shadow: none;
         padding: 0;
         border: none;
+    }
+    
+    /* Afficher les notes en impression */
+    .note-display-inline {
+        display: block !important;
+        background: #fffbf0 !important;
+        border: 2px solid #ffc107 !important;
+        padding: 10px !important;
+        margin-top: 10px !important;
+        page-break-inside: avoid;
+    }
+    
+    /* Section GÉNÉRAL - Affichage spécial en impression */
+    .section-header:has(+ .sector-row .note-general-print) {
+        background: #cfe2ff !important;
+        color: #000 !important;
+    }
+    
+    /* Masquer responsables et employés dans la section GÉNÉRAL à l'impression */
+    .sector-row-general .sector-cell:not(:first-child) {
+        display: none !important;
+    }
+    
+    .sector-row-general {
+        grid-template-columns: 1fr !important;
     }
 }
 

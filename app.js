@@ -1423,6 +1423,7 @@ function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionCo
     
     // ✅ TRAITEMENT SPÉCIAL POUR GÉNÉRAL : Affichage simplifié (uniquement zone de note)
     if (sectionTitle && (sectionTitle.includes('GÉNÉRAL') || sectionTitle.includes('GENERAL'))) {
+        row.classList.add('sector-row-general'); // Classe pour l'impression
         row.style.display = 'block';
         row.style.padding = '25px';
         row.style.gridTemplateColumns = '1fr';
@@ -1445,7 +1446,7 @@ function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionCo
                 </div>
                 ${sector.note && sector.note.trim() ? `
                     <div style="background: #fffbf0; border: 2px solid #ffc107; border-radius: 10px; padding: 20px; 
-                                min-height: 100px; white-space: pre-wrap; line-height: 1.6;">
+                                min-height: 100px; white-space: pre-wrap; line-height: 1.6; text-align: center;">
                         ${sector.note.replace(/\n/g, '<br>')}
                     </div>
                 ` : `
@@ -1463,7 +1464,7 @@ function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionCo
                 </h3>
                 ${sector.note && sector.note.trim() ? `
                     <div style="background: #fffbf0; border: 2px solid #ffc107; border-radius: 10px; padding: 20px; 
-                                white-space: pre-wrap; line-height: 1.6;">
+                                white-space: pre-wrap; line-height: 1.6; text-align: center;">
                         ${sector.note.replace(/\n/g, '<br>')}
                     </div>
                 ` : `
