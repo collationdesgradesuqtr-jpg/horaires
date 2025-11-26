@@ -1930,6 +1930,117 @@ function migrateStructureToCeremonies() {
 }
 
 
+
+// ✅ FONCTION DE MIGRATION : Ajouter section GÉNÉRAL et "Retour des toges réguliers"
+async function migrateToNewStructure() {
+    if (!confirm('⚠️ MIGRATION\n\nCette action va ajouter:\n- Section GÉNÉRAL (en bleu)\n- Secteur "Retour des toges réguliers"\n\nVos données existantes seront préservées.\n\nContinuer ?')) {
+        return;
+    }
+    
+    console.log('🔄 Début de la migration...');
+    
+    try {
+        let migratedCount = 0;
+        
+        ['ceremonie1', 'ceremonie2', 'ceremonie3', 'ceremonie4', 'ceremonie5', 'ceremonie6'].forEach(ceremonyKey => {
+            if (!eventData[ceremonyKey] || !eventData[ceremonyKey].sections) {
+                console.log(`⚠️ ${ceremonyKey} n'a pas de sections, ignorée`);
+                return;
+            }
+            
+            const sections = eventData[ceremonyKey].sections;
+            
+            // 1. Trouver la section APRÈS
+            const apresSection = sections.find(s => 
+                s.title === 'APRÈS LA CÉRÉMONIE' || 
+                s.title === 'APRÈS' ||
+                s.title.includes('APRÈS') ||
+                s.title.includes('APRES')
+            );
+            
+            if (apresSection) {
+                // Vérifier si "Retour des toges réguliers" existe déjà
+                const hasRetourReguliers = apresSection.sectors.some(s => 
+                    s.name === "Retour des toges réguliers"
+                );
+                
+                if (!hasRetourReguliers) {
+                    // Trouver l'index de "Retour des toges - Régulier et équipe volante"
+                    const regulierIndex = apresSection.sectors.findIndex(s => 
+                        s.name === "Retour des toges - Régulier et équipe volante"
+                    );
+                    
+                    if (regulierIndex !== -1) {
+                        // Ajouter juste après
+                        apresSection.sectors.splice(regulierIndex + 1, 0, {
+                            name: "Retour des toges réguliers",
+                            location: "",
+                            responsables: [],
+                            employees: [],
+                            note: ""
+                        });
+                        console.log(`  ✅ ${ceremonyKey}: Ajout "Retour des toges réguliers"`);
+                    }
+                }
+            }
+            
+            // 2. Vérifier si la section GÉNÉRAL existe déjà
+            const hasGeneral = sections.some(s => 
+                s.title === 'GÉNÉRAL' || 
+                s.title === 'GENERAL'
+            );
+            
+            if (!hasGeneral) {
+                // Ajouter la section GÉNÉRAL à la fin
+                sections.push({
+                    title: "GÉNÉRAL",
+                    sectors: [
+                        {
+                            name: "Notes générales",
+                            location: "",
+                            responsables: [],
+                            employees: [],
+                            note: ""
+                        }
+                    ]
+                });
+                console.log(`  ✅ ${ceremonyKey}: Ajout section GÉNÉRAL`);
+            }
+            
+            migratedCount++;
+        });
+        
+        // Sauvegarder dans Firebase
+        console.log('💾 Sauvegarde dans Firebase...');
+        await saveData();
+        
+        // Message de confirmation
+        alert(
+            '✅ MIGRATION RÉUSSIE !\n\n' +
+            `${migratedCount} cérémonies ont été mises à jour.\n\n` +
+            '✅ Section GÉNÉRAL ajoutée en bleu\n' +
+            '✅ "Retour des toges réguliers" ajouté\n\n' +
+            'Rechargez la page pour voir les changements.'
+        );
+        
+        console.log(`✅ Migration terminée avec succès !`);
+        
+        // Rafraîchir l'affichage
+        setTimeout(() => {
+            location.reload();
+        }, 1000);
+        
+    } catch (error) {
+        console.error('❌ Erreur lors de la migration:', error);
+        alert(
+            '❌ ERREUR lors de la migration\n\n' +
+            'Détails: ' + error.message + '\n\n' +
+            'Vos données n\'ont PAS été modifiées.'
+        );
+    }
+}
+
+
 console.log('🚀 Application Cérémonie des Grades - Démarrage...');
 console.log('🔐 Système d\'authentification: ACTIVÉ');
 console.log('⏳ Initialisation de l\'authentification Firebase...');
