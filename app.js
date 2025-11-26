@@ -1,4 +1,3 @@
-// ✅ VERSION CORRIGEE 26-NOV-2025 20:30 - MIGRATION AMELIOREE
 // Configuration Firebase
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
@@ -58,16 +57,14 @@ const ADMIN_PASSWORD = 'admin2026';
 const sectionColors = {
     'AVANT': '#d4edda',     // 🟢 VERT TRÈS PÂLE (pastel)
     'PENDANT': '#fff3cd',   // 🟡 JAUNE TRÈS PÂLE (pastel)  
-    'APRES': '#f8d7da',     // 🔴 ROUGE TRÈS PÂLE (pastel)
-    'GENERAL': '#cfe2ff'    // 🔵 BLEU PÂLE (pastel)
+    'APRES': '#f8d7da'      // 🔴 ROUGE TRÈS PÂLE (pastel)
 };
 
 // 🎨 COULEURS FONCÉES pour les boutons (plus visibles)
 const sectionColorsDark = {
     'AVANT': '#28a745',     // 🟢 VERT FONCÉ pour boutons
     'PENDANT': '#ffc107',   // 🟡 JAUNE/ORANGE FONCÉ pour boutons  
-    'APRES': '#dc3545',     // 🔴 ROUGE FONCÉ pour boutons
-    'GENERAL': '#0d6efd'    // 🔵 BLEU FONCÉ pour boutons
+    'APRES': '#dc3545'      // 🔴 ROUGE FONCÉ pour boutons
 };
 
 // DONNÉES INITIALES
@@ -149,16 +146,9 @@ const initialData = {
                 sectors: [
                     { name: "Retour des toges - Poste permanent", location: "Vestiaire", responsables: [], employees: [] },
                     { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] },
-                    { name: "Retour des toges réguliers", location: "", responsables: [], employees: [] },
                     { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
                     { name: "Équipe volante", location: "", responsables: [], employees: [] },
                     { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
-                ]
-            },
-            {
-                title: "GÉNÉRAL",
-                sectors: [
-                    { name: "Notes générales", location: "", responsables: [], employees: [] }
                 ]
             }
         ]
@@ -196,13 +186,9 @@ const initialData = {
             { title: "APRÈS LA CÉRÉMONIE", sectors: [
                 { name: "Retour des toges - Poste permanent", location: "Vestiaire", responsables: [], employees: [] },
                 { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] },
-                { name: "Retour des toges réguliers", location: "", responsables: [], employees: [] },
                 { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
                 { name: "Équipe volante", location: "", responsables: [], employees: [] },
                 { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
-            ]},
-            { title: "GÉNÉRAL", sectors: [
-                { name: "Notes générales", location: "", responsables: [], employees: [] }
             ]}
         ]
     },
@@ -239,13 +225,9 @@ const initialData = {
             { title: "APRÈS LA CÉRÉMONIE", sectors: [
                 { name: "Retour des toges - Poste permanent", location: "Vestiaire", responsables: [], employees: [] },
                 { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] },
-                { name: "Retour des toges réguliers", location: "", responsables: [], employees: [] },
                 { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
                 { name: "Équipe volante", location: "", responsables: [], employees: [] },
                 { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
-            ]},
-            { title: "GÉNÉRAL", sectors: [
-                { name: "Notes générales", location: "", responsables: [], employees: [] }
             ]}
         ]
     },
@@ -282,13 +264,9 @@ const initialData = {
             { title: "APRÈS LA CÉRÉMONIE", sectors: [
                 { name: "Retour des toges - Poste permanent", location: "Vestiaire", responsables: [], employees: [] },
                 { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] },
-                { name: "Retour des toges réguliers", location: "", responsables: [], employees: [] },
                 { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
                 { name: "Équipe volante", location: "", responsables: [], employees: [] },
                 { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
-            ]},
-            { title: "GÉNÉRAL", sectors: [
-                { name: "Notes générales", location: "", responsables: [], employees: [] }
             ]}
         ]
     },
@@ -325,13 +303,9 @@ const initialData = {
             { title: "APRÈS LA CÉRÉMONIE", sectors: [
                 { name: "Retour des toges - Poste permanent", location: "Vestiaire", responsables: [], employees: [] },
                 { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] },
-                { name: "Retour des toges réguliers", location: "", responsables: [], employees: [] },
                 { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
                 { name: "Équipe volante", location: "", responsables: [], employees: [] },
                 { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
-            ]},
-            { title: "GÉNÉRAL", sectors: [
-                { name: "Notes générales", location: "", responsables: [], employees: [] }
             ]}
         ]
     },
@@ -368,13 +342,9 @@ const initialData = {
             { title: "APRÈS LA CÉRÉMONIE", sectors: [
                 { name: "Retour des toges - Poste permanent", location: "Vestiaire", responsables: [], employees: [] },
                 { name: "Retour des toges - Régulier et équipe volante", location: "", responsables: [], employees: [] },
-                { name: "Retour des toges réguliers", location: "", responsables: [], employees: [] },
                 { name: "Popcorn au chapiteau", location: "", responsables: [], employees: [] },
                 { name: "Équipe volante", location: "", responsables: [], employees: [] },
                 { name: "Équipe de coordination", location: "", responsables: [], employees: [] }
-            ]},
-            { title: "GÉNÉRAL", sectors: [
-                { name: "Notes générales", location: "", responsables: [], employees: [] }
             ]}
         ]
     },
@@ -560,10 +530,6 @@ function setMode(mode) {
         readNav.style.display = 'none';
         if (manageEmployeesBtn) manageEmployeesBtn.style.display = 'none';
         if (copyTemplateBtn) copyTemplateBtn.style.display = 'none';
-        const migrateBtnHide2 = document.getElementById('migrateStructureBtn');
-        if (migrateBtnHide2) migrateBtnHide2.style.display = 'none';
-        const migrateBtnHide1 = document.getElementById('migrateStructureBtn');
-        if (migrateBtnHide1) migrateBtnHide1.style.display = 'none';
     } else if (mode === 'read') {
         employeeNav.style.display = 'none';
         readNav.style.display = 'block';
@@ -574,8 +540,6 @@ function setMode(mode) {
         readNav.style.display = 'none';
         if (manageEmployeesBtn) manageEmployeesBtn.style.display = 'inline-flex';
         if (copyTemplateBtn) copyTemplateBtn.style.display = 'inline-flex';
-        const migrateBtn = document.getElementById('migrateStructureBtn');
-        if (migrateBtn) migrateBtn.style.display = 'inline-flex';
     }
     
     renderEvent(currentEvent);
@@ -714,9 +678,6 @@ function renderEvent(eventName) {
             } else if (section.title.includes('APRÈS') || section.title.includes('APRES')) {
                 backgroundColor = sectionColors['APRES']; // Rose pâle
                 buttonColor = sectionColorsDark['APRES']; // Rouge foncé pour boutons
-            } else if (section.title.includes('GÉNÉRAL') || section.title.includes('GENERAL')) {
-                backgroundColor = sectionColors['GENERAL']; // Bleu pâle
-                buttonColor = sectionColorsDark['GENERAL']; // Bleu foncé pour boutons
             }
             
             const sectionHeader = document.createElement('div');
@@ -739,7 +700,7 @@ function renderEvent(eventName) {
                     if (!sector.note) sector.note = '';
                     if (!sector.location) sector.location = '';
                     
-                    const sectorRow = createSectorRow(sector, eventName, sectionIndex, sectorIndex, backgroundColor, buttonColor, section.title);
+                    const sectorRow = createSectorRow(sector, eventName, sectionIndex, sectorIndex, backgroundColor, buttonColor);
                     sectionDiv.appendChild(sectorRow);
                 });
             } else {
@@ -1414,71 +1375,12 @@ function exportTemplate() {
     }, 500);
 }
 
-function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionColor, buttonColor, sectionTitle = '') {
+function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionColor, buttonColor) {
     const row = document.createElement('div');
     row.className = 'sector-row';
     
     // ✅ DEMANDE #3 : Appliquer la couleur de fond pastel à toute la ligne de secteur
     row.style.backgroundColor = sectionColor;
-    
-    // ✅ TRAITEMENT SPÉCIAL POUR GÉNÉRAL : Affichage simplifié (uniquement zone de note)
-    if (sectionTitle && (sectionTitle.includes('GÉNÉRAL') || sectionTitle.includes('GENERAL'))) {
-        row.classList.add('sector-row-general'); // Classe pour l'impression
-        row.style.display = 'block';
-        row.style.padding = '25px';
-        row.style.gridTemplateColumns = '1fr';
-        
-        if (!sector.note) sector.note = '';
-        
-        const noteContent = document.createElement('div');
-        noteContent.style.width = '100%';
-        
-        if (appMode === 'admin') {
-            noteContent.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                    <h3 style="margin: 0; font-size: 18px; color: #0d6efd; font-weight: 700;">
-                        📝 Notes générales de la cérémonie
-                    </h3>
-                    <button class="btn btn-note btn-sm" onclick="manageSectorNote('${eventName}', ${sectionIndex}, ${sectorIndex})" 
-                            title="Modifier les notes">
-                        ✏️ Modifier
-                    </button>
-                </div>
-                ${sector.note && sector.note.trim() ? `
-                    <div style="background: #fffbf0; border: 2px solid #ffc107; border-radius: 10px; padding: 20px; 
-                                min-height: 100px; white-space: pre-wrap; line-height: 1.6; text-align: center;">
-                        ${sector.note.replace(/\n/g, '<br>')}
-                    </div>
-                ` : `
-                    <div style="background: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 10px; padding: 30px; 
-                                text-align: center; color: #6c757d; font-style: italic;">
-                        Aucune note générale. Cliquez sur "Modifier" pour ajouter des notes.
-                    </div>
-                `}
-            `;
-        } else {
-            // Mode lecture/employé
-            noteContent.innerHTML = `
-                <h3 style="margin: 0 0 15px 0; font-size: 18px; color: #0d6efd; font-weight: 700;">
-                    📝 Notes générales de la cérémonie
-                </h3>
-                ${sector.note && sector.note.trim() ? `
-                    <div style="background: #fffbf0; border: 2px solid #ffc107; border-radius: 10px; padding: 20px; 
-                                white-space: pre-wrap; line-height: 1.6; text-align: center;">
-                        ${sector.note.replace(/\n/g, '<br>')}
-                    </div>
-                ` : `
-                    <div style="background: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 10px; padding: 20px; 
-                                text-align: center; color: #6c757d; font-style: italic;">
-                        Aucune note générale pour cette cérémonie.
-                    </div>
-                `}
-            `;
-        }
-        
-        row.appendChild(noteContent);
-        return row;
-    }
     
     // ✅ INITIALISER LES CHAMPS MANQUANTS
     if (!sector.note) sector.note = '';
@@ -1489,17 +1391,27 @@ function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionCo
     const infoCell = document.createElement('div');
     infoCell.className = 'sector-cell';
     
-    // ✅ Bouton note toujours visible avec fond orange pâle
-    const noteClass = 'btn-note'; // Classe unique, pas de distinction vide/rempli
+    // ✅ Déterminer la classe du bouton note (avec ou sans note)
+    const noteClass = sector.note.trim() ? 'btn-note-filled' : 'btn-note-empty';
     
     // ✅ En mode admin : modal éditable
-    // ✅ En mode employé/lecture : pas de tooltip, note affichée en dessous
+    // ✅ En mode employé/lecture : tooltip au survol
     let noteButton = '';
     if (appMode === 'admin') {
-        noteButton = `<button class="btn btn-note btn-sm" onclick="manageSectorNote('${eventName}', ${sectionIndex}, ${sectorIndex})" title="${sector.note.trim() ? 'Modifier la note' : 'Ajouter une note'}">📝</button>`;
+        noteButton = `<button class="btn btn-note btn-sm ${noteClass}" onclick="manageSectorNote('${eventName}', ${sectionIndex}, ${sectorIndex})" title="${sector.note.trim() ? 'Modifier la note' : 'Ajouter une note'}">📝</button>`;
     } else {
-        // Mode lecture : bouton simple, note affichée en dessous
-        noteButton = `<button class="btn btn-note btn-sm" title="Note">📝</button>`;
+        // Mode lecture : tooltip au survol
+        if (sector.note.trim()) {
+            const noteEscaped = sector.note.replace(/'/g, '&apos;').replace(/"/g, '&quot;').replace(/\n/g, '<br>');
+            noteButton = `
+                <button class="btn btn-note btn-sm ${noteClass}" title="Voir la note">
+                    📝
+                    <div class="note-tooltip">${noteEscaped}</div>
+                </button>
+            `;
+        } else {
+            noteButton = `<button class="btn btn-note btn-sm ${noteClass}" title="Aucune note">📝</button>`;
+        }
     }
     
     infoCell.innerHTML = `
@@ -1561,14 +1473,6 @@ function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionCo
         }
     }
     
-    // ✅ Afficher la note toujours visible sous le secteur (si elle existe)
-    if (sector.note && sector.note.trim()) {
-        const noteDisplay = document.createElement('div');
-        noteDisplay.className = 'note-display-inline';
-        noteDisplay.innerHTML = `<strong>📝 Note:</strong> ${sector.note.replace(/\n/g, '<br>')}`;
-        row.appendChild(noteDisplay);
-    }
-    
     return row;
 }
 
@@ -1620,7 +1524,6 @@ document.getElementById('exportPdfBtn').addEventListener('click', () => window.p
 document.getElementById('exportTemplateBtn').addEventListener('click', exportTemplate);
 document.getElementById('manageEmployeesListBtn').addEventListener('click', showManageEmployeesList);
 document.getElementById('copyTemplateBtn').addEventListener('click', copyTemplateToAllCeremonies);
-document.getElementById('migrateStructureBtn').addEventListener('click', migrateToNewStructure);
 
 document.getElementById('cancelManageEmployees').addEventListener('click', () => {
     console.log('🔴 Fermeture du modal manageEmployeesModal');
@@ -1997,165 +1900,8 @@ function migrateStructureToCeremonies() {
 }
 
 
-
-// ✅ FONCTION DE MIGRATION : Ajouter section GÉNÉRAL et "Retour des toges réguliers"
-async function migrateToNewStructure() {
-    if (!confirm('⚠️ MIGRATION\n\nCette action va ajouter:\n- Section GÉNÉRAL (en bleu)\n- Secteur "Retour des toges réguliers"\n\nVos données existantes seront préservées.\n\nContinuer ?')) {
-        return;
-    }
-    
-    console.log('🔄 Début de la migration...');
-    console.log('📊 État actuel:', eventData);
-    
-    try {
-        let migratedCount = 0;
-        let addedRetourCount = 0;
-        let addedGeneralCount = 0;
-        
-        ['ceremonie1', 'ceremonie2', 'ceremonie3', 'ceremonie4', 'ceremonie5', 'ceremonie6'].forEach(ceremonyKey => {
-            console.log(`\n🔍 Traitement de ${ceremonyKey}...`);
-            
-            if (!eventData[ceremonyKey] || !eventData[ceremonyKey].sections) {
-                console.log(`⚠️ ${ceremonyKey} n'a pas de sections, ignorée`);
-                return;
-            }
-            
-            const sections = eventData[ceremonyKey].sections;
-            console.log(`  📋 Sections trouvées:`, sections.map(s => s.title));
-            
-            // 1. Trouver la section APRÈS
-            const apresSection = sections.find(s => 
-                s.title === 'APRÈS LA CÉRÉMONIE' || 
-                s.title === 'APRÈS' ||
-                s.title.includes('APRÈS') ||
-                s.title.includes('APRES')
-            );
-            
-            if (apresSection) {
-                console.log(`  ✅ Section APRÈS trouvée avec ${apresSection.sectors.length} secteurs`);
-                console.log(`  📝 Secteurs APRÈS:`, apresSection.sectors.map(s => s.name));
-                
-                // Vérifier si "Retour des toges réguliers" existe déjà
-                const hasRetourReguliers = apresSection.sectors.some(s => 
-                    s.name === "Retour des toges réguliers"
-                );
-                
-                console.log(`  🔍 "Retour des toges réguliers" existe déjà? ${hasRetourReguliers}`);
-                
-                if (!hasRetourReguliers) {
-                    // Chercher le dernier secteur contenant "Retour des toges"
-                    let lastRetourIndex = -1;
-                    for (let i = apresSection.sectors.length - 1; i >= 0; i--) {
-                        if (apresSection.sectors[i].name.toLowerCase().includes("retour des toges")) {
-                            lastRetourIndex = i;
-                            break;
-                        }
-                    }
-                    
-                    console.log(`  🔍 Dernier secteur "Retour des toges" trouvé à l'index: ${lastRetourIndex}`);
-                    
-                    if (lastRetourIndex !== -1) {
-                        // Ajouter juste après le dernier secteur "Retour des toges"
-                        apresSection.sectors.splice(lastRetourIndex + 1, 0, {
-                            name: "Retour des toges réguliers",
-                            location: "",
-                            responsables: [],
-                            employees: [],
-                            note: ""
-                        });
-                        console.log(`  ✅ ${ceremonyKey}: Ajout "Retour des toges réguliers" à l'index ${lastRetourIndex + 1}!`);
-                        addedRetourCount++;
-                    } else {
-                        // Si aucun secteur "Retour des toges", ajouter au début
-                        apresSection.sectors.unshift({
-                            name: "Retour des toges réguliers",
-                            location: "",
-                            responsables: [],
-                            employees: [],
-                            note: ""
-                        });
-                        console.log(`  ✅ ${ceremonyKey}: Ajout "Retour des toges réguliers" au début!`);
-                        addedRetourCount++;
-                    }
-                } else {
-                    console.log(`  ℹ️ ${ceremonyKey}: "Retour des toges réguliers" existe déjà, ignoré`);
-                }
-            } else {
-                console.log(`  ❌ Section APRÈS non trouvée pour ${ceremonyKey}`);
-            }
-            
-            // 2. Vérifier si la section GÉNÉRAL existe déjà
-            const hasGeneral = sections.some(s => 
-                s.title === 'GÉNÉRAL' || 
-                s.title === 'GENERAL'
-            );
-            
-            console.log(`  🔍 Section GÉNÉRAL existe déjà? ${hasGeneral}`);
-            
-            if (!hasGeneral) {
-                // Ajouter la section GÉNÉRAL à la fin
-                sections.push({
-                    title: "GÉNÉRAL",
-                    sectors: [
-                        {
-                            name: "Notes générales",
-                            location: "",
-                            responsables: [],
-                            employees: [],
-                            note: ""
-                        }
-                    ]
-                });
-                console.log(`  ✅ ${ceremonyKey}: Ajout section GÉNÉRAL effectué!`);
-                addedGeneralCount++;
-            } else {
-                console.log(`  ℹ️ ${ceremonyKey}: Section GÉNÉRAL existe déjà, ignorée`);
-            }
-            
-            migratedCount++;
-        });
-        
-        console.log(`\n📊 RÉSUMÉ:`);
-        console.log(`  - Cérémonies traitées: ${migratedCount}`);
-        console.log(`  - "Retour des toges réguliers" ajoutés: ${addedRetourCount}`);
-        console.log(`  - Sections GÉNÉRAL ajoutées: ${addedGeneralCount}`);
-        
-        // Sauvegarder dans Firebase
-        console.log('\n💾 Sauvegarde dans Firebase...');
-        await saveData();
-        console.log('✅ Sauvegarde Firebase terminée!');
-        
-        // Message de confirmation
-        alert(
-            '✅ MIGRATION RÉUSSIE !\n\n' +
-            `${migratedCount} cérémonies ont été mises à jour.\n\n` +
-            `✅ "${addedRetourCount}" x "Retour des toges réguliers" ajoutés\n` +
-            `✅ "${addedGeneralCount}" x Section GÉNÉRAL ajoutées\n\n` +
-            'La page va se recharger automatiquement...'
-        );
-        
-        console.log(`✅ Migration terminée avec succès !`);
-        
-        // Rafraîchir l'affichage
-        setTimeout(() => {
-            console.log('🔄 Rechargement de la page...');
-            location.reload();
-        }, 1500);
-        
-    } catch (error) {
-        console.error('❌ Erreur lors de la migration:', error);
-        console.error('Stack trace:', error.stack);
-        alert(
-            '❌ ERREUR lors de la migration\n\n' +
-            'Détails: ' + error.message + '\n\n' +
-            'Vérifiez la console (F12) pour plus d\'informations.\n' +
-            'Vos données n\'ont PAS été modifiées.'
-        );
-    }
-}
-
-
 console.log('🚀 Application Cérémonie des Grades - Démarrage...');
 console.log('🔐 Système d\'authentification: ACTIVÉ');
 console.log('⏳ Initialisation de l\'authentification Firebase...');
 console.log('📌 Note: Attendez le message "✅ Authentification anonyme réussie" avant de modifier des données');
+
