@@ -1,3 +1,4 @@
+// ✅ VERSION FINALE 26-NOV-2025 21:25 - TOUTES MODIFICATIONS INCLUSES
 // Configuration Firebase
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
@@ -57,14 +58,16 @@ const ADMIN_PASSWORD = 'admin2026';
 const sectionColors = {
     'AVANT': '#d4edda',     // 🟢 VERT TRÈS PÂLE (pastel)
     'PENDANT': '#fff3cd',   // 🟡 JAUNE TRÈS PÂLE (pastel)  
-    'APRES': '#f8d7da'      // 🔴 ROUGE TRÈS PÂLE (pastel)
+    'APRES': '#f8d7da',     // 🔴 ROUGE TRÈS PÂLE (pastel)
+    'GENERAL': '#cfe2ff'    // 🔵 BLEU PÂLE (pastel)
 };
 
 // 🎨 COULEURS FONCÉES pour les boutons (plus visibles)
 const sectionColorsDark = {
     'AVANT': '#28a745',     // 🟢 VERT FONCÉ pour boutons
     'PENDANT': '#ffc107',   // 🟡 JAUNE/ORANGE FONCÉ pour boutons  
-    'APRES': '#dc3545'      // 🔴 ROUGE FONCÉ pour boutons
+    'APRES': '#dc3545',     // 🔴 ROUGE FONCÉ pour boutons
+    'GENERAL': '#0d6efd'    // 🔵 BLEU FONCÉ pour boutons
 };
 
 // DONNÉES INITIALES
@@ -678,6 +681,9 @@ function renderEvent(eventName) {
             } else if (section.title.includes('APRÈS') || section.title.includes('APRES')) {
                 backgroundColor = sectionColors['APRES']; // Rose pâle
                 buttonColor = sectionColorsDark['APRES']; // Rouge foncé pour boutons
+            } else if (section.title.includes('GÉNÉRAL') || section.title.includes('GENERAL')) {
+                backgroundColor = sectionColors['GENERAL']; // Bleu pâle
+                buttonColor = sectionColorsDark['GENERAL']; // Bleu foncé pour boutons
             }
             
             const sectionHeader = document.createElement('div');
@@ -700,7 +706,7 @@ function renderEvent(eventName) {
                     if (!sector.note) sector.note = '';
                     if (!sector.location) sector.location = '';
                     
-                    const sectorRow = createSectorRow(sector, eventName, sectionIndex, sectorIndex, backgroundColor, buttonColor);
+                    const sectorRow = createSectorRow(sector, eventName, sectionIndex, sectorIndex, backgroundColor, buttonColor, section.title);
                     sectionDiv.appendChild(sectorRow);
                 });
             } else {
@@ -1375,12 +1381,33 @@ function exportTemplate() {
     }, 500);
 }
 
-function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionColor, buttonColor) {
+function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionColor, buttonColor, sectionTitle) {
     const row = document.createElement('div');
     row.className = 'sector-row';
     
     // ✅ DEMANDE #3 : Appliquer la couleur de fond pastel à toute la ligne de secteur
     row.style.backgroundColor = sectionColor;
+    
+    // ✅ TRAITEMENT SPÉCIAL POUR GÉNÉRAL
+    if (sectionTitle && (sectionTitle.includes('GÉNÉRAL') || sectionTitle.includes('GENERAL'))) {
+        row.classList.add('sector-row-general');
+        row.style.display = 'block';
+        row.style.padding = '25px';
+        
+        if (!sector.note) sector.note = '';
+        
+        const noteContent = document.createElement('div');
+        noteContent.style.width = '100%';
+        
+        if (appMode === 'admin') {
+            noteContent.innerHTML = '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;"><h3 style="margin: 0; font-size: 18px; color: #0d6efd; font-weight: 700;">📝 Notes générales de la cérémonie</h3><button class="btn btn-note btn-sm" onclick="manageSectorNote(\'' + eventName + '\', ' + sectionIndex + ', ' + sectorIndex + ')" title="Modifier les notes">✏️ Modifier</button></div>' + (sector.note && sector.note.trim() ? '<div style="background: #fffbf0; border: 2px solid #ffc107; border-radius: 10px; padding: 20px; min-height: 100px; white-space: pre-wrap; line-height: 1.6; text-align: center;">' + sector.note.replace(/\n/g, '<br>') + '</div>' : '<div style="background: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 10px; padding: 30px; text-align: center; color: #6c757d; font-style: italic;">Aucune note générale. Cliquez sur "Modifier" pour ajouter des notes.</div>');
+        } else {
+            noteContent.innerHTML = '<h3 style="margin: 0 0 15px 0; font-size: 18px; color: #0d6efd; font-weight: 700;">📝 Notes générales de la cérémonie</h3>' + (sector.note && sector.note.trim() ? '<div style="background: #fffbf0; border: 2px solid #ffc107; border-radius: 10px; padding: 20px; white-space: pre-wrap; line-height: 1.6; text-align: center;">' + sector.note.replace(/\n/g, '<br>') + '</div>' : '<div style="background: #f8f9fa; border: 2px dashed #dee2e6; border-radius: 10px; padding: 20px; text-align: center; color: #6c757d; font-style: italic;">Aucune note générale pour cette cérémonie.</div>');
+        }
+        
+        row.appendChild(noteContent);
+        return row;
+    }
     
     // ✅ INITIALISER LES CHAMPS MANQUANTS
     if (!sector.note) sector.note = '';
@@ -1895,6 +1922,117 @@ function migrateStructureToCeremonies() {
             'Détails: ' + error.message + '\n\n' +
             'Veuillez vérifier la console (F12) pour plus d\'informations.\n' +
             'Vos données n\'ont PAS été modifiées.'
+        );
+    }
+}
+
+
+
+async function migrateToNewStructure() {
+    if (!confirm('⚠️ MIGRATION\n\nCette action va ajouter:\n- Section GÉNÉRAL (en bleu)\n- Secteur "Retour des toges réguliers"\n\nVos données existantes seront préservées.\n\nContinuer ?')) {
+        return;
+    }
+    
+    console.log('🔄 Début de la migration...');
+    
+    try {
+        let migratedCount = 0;
+        let addedRetourCount = 0;
+        let addedGeneralCount = 0;
+        
+        ['ceremonie1', 'ceremonie2', 'ceremonie3', 'ceremonie4', 'ceremonie5', 'ceremonie6'].forEach(ceremonyKey => {
+            if (!eventData[ceremonyKey] || !eventData[ceremonyKey].sections) {
+                return;
+            }
+            
+            const sections = eventData[ceremonyKey].sections;
+            
+            const apresSection = sections.find(s => 
+                s.title === 'APRÈS LA CÉRÉMONIE' || 
+                s.title === 'APRÈS' ||
+                s.title.includes('APRÈS') ||
+                s.title.includes('APRES')
+            );
+            
+            if (apresSection) {
+                const hasRetourReguliers = apresSection.sectors.some(s => 
+                    s.name === "Retour des toges réguliers"
+                );
+                
+                if (!hasRetourReguliers) {
+                    let lastRetourIndex = -1;
+                    for (let i = apresSection.sectors.length - 1; i >= 0; i--) {
+                        if (apresSection.sectors[i].name.toLowerCase().includes("retour des toges")) {
+                            lastRetourIndex = i;
+                            break;
+                        }
+                    }
+                    
+                    if (lastRetourIndex !== -1) {
+                        apresSection.sectors.splice(lastRetourIndex + 1, 0, {
+                            name: "Retour des toges réguliers",
+                            location: "",
+                            responsables: [],
+                            employees: [],
+                            note: ""
+                        });
+                        addedRetourCount++;
+                    } else {
+                        apresSection.sectors.unshift({
+                            name: "Retour des toges réguliers",
+                            location: "",
+                            responsables: [],
+                            employees: [],
+                            note: ""
+                        });
+                        addedRetourCount++;
+                    }
+                }
+            }
+            
+            const hasGeneral = sections.some(s => 
+                s.title === 'GÉNÉRAL' || 
+                s.title === 'GENERAL'
+            );
+            
+            if (!hasGeneral) {
+                sections.push({
+                    title: "GÉNÉRAL",
+                    sectors: [
+                        {
+                            name: "Notes générales",
+                            location: "",
+                            responsables: [],
+                            employees: [],
+                            note: ""
+                        }
+                    ]
+                });
+                addedGeneralCount++;
+            }
+            
+            migratedCount++;
+        });
+        
+        await saveData();
+        
+        alert(
+            '✅ MIGRATION RÉUSSIE !\n\n' +
+            migratedCount + ' cérémonies ont été mises à jour.\n\n' +
+            '✅ "' + addedRetourCount + '" x "Retour des toges réguliers" ajoutés\n' +
+            '✅ "' + addedGeneralCount + '" x Section GÉNÉRAL ajoutées\n\n' +
+            'La page va se recharger automatiquement...'
+        );
+        
+        setTimeout(() => {
+            location.reload();
+        }, 1500);
+        
+    } catch (error) {
+        console.error('❌ Erreur lors de la migration:', error);
+        alert(
+            '❌ ERREUR lors de la migration\n\n' +
+            'Détails: ' + error.message
         );
     }
 }
