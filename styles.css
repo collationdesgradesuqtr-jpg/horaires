@@ -869,19 +869,23 @@ body::before {
 @media print {
     body {
         background: white;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
     
     body::before {
         display: none;
     }
     
+    /* Masquer les éléments de navigation */
     .modern-header,
     .secondary-nav,
     .event-selector-wrapper,
     .admin-controls,
     .mode-buttons,
     .action-buttons,
-    .btn {
+    .btn,
+    button {
         display: none !important;
     }
     
@@ -891,29 +895,61 @@ body::before {
         border: none;
     }
     
-    /* Afficher les notes en impression */
-    .note-display-inline {
-        display: block !important;
-        background: #fffbf0 !important;
-        border: 2px solid #ffc107 !important;
-        padding: 10px !important;
-        margin-top: 10px !important;
+    /* ✅ FORCER l'affichage de la grille pour les notes */
+    .sector-row {
+        display: grid !important;
+        grid-template-columns: 2fr 1fr 1fr !important;
         page-break-inside: avoid;
     }
     
-    /* Section GÉNÉRAL - Affichage spécial en impression */
-    .section-header:has(+ .sector-row .note-general-print) {
-        background: #cfe2ff !important;
+    /* ✅ AFFICHER LES NOTES sur toute la largeur */
+    .note-display-inline {
+        display: block !important;
+        grid-column: 1 / 4 !important;
+        background: #fffbf0 !important;
+        border: 2px solid #ffc107 !important;
+        padding: 15px !important;
+        margin: 10px 0 !important;
+        page-break-inside: avoid !important;
+        font-size: 11pt !important;
         color: #000 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
     
-    /* Masquer responsables et employés dans la section GÉNÉRAL à l'impression */
-    .sector-row-general .sector-cell:not(:first-child) {
+    .note-display-inline strong {
+        display: inline !important;
+        font-weight: bold !important;
+        color: #d4af37 !important;
+    }
+    
+    /* ✅ Section GÉNÉRAL - Affichage simplifié en impression */
+    .sector-row-general {
+        display: block !important;
+        padding: 25px !important;
+        background: #cfe2ff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    .sector-row-general .sector-cell:nth-child(2),
+    .sector-row-general .sector-cell:nth-child(3) {
         display: none !important;
     }
     
-    .sector-row-general {
-        grid-template-columns: 1fr !important;
+    /* ✅ Forcer l'affichage des couleurs de fond */
+    .section-header {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+    
+    /* ✅ Éviter les coupures de page */
+    .section {
+        page-break-inside: avoid;
+    }
+    
+    .sector-row {
+        page-break-inside: avoid;
     }
 }
 
