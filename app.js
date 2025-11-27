@@ -1631,13 +1631,15 @@ function exportToPDF() {
             if (isGeneral) {
                 // Section GÉNÉRAL - affichage simplifié
                 html += `<div class="sector sector-general">`;
-                const noteText = row.textContent.replace('📝 Notes générales de la cérémonie', '').replace('✏️ Modifier', '').trim();
-                if (noteText) {
-                    html += `<div class="sector-name">Notes générales de la cérémonie</div>`;
-                    html += `<div class="note"><strong>📝 Note:</strong> ${noteText}</div>`;
+                html += `<div class="sector-name">📝 Notes générales de la cérémonie</div>`;
+                
+                // Chercher le contenu de la note dans la div avec fond orange
+                const noteDiv = row.querySelector('div[style*="background: #fffbf0"]');
+                if (noteDiv) {
+                    const noteText = noteDiv.innerHTML;
+                    html += `<div class="note">${noteText}</div>`;
                 } else {
-                    html += `<div class="sector-name">Notes générales</div>`;
-                    html += `<div style="color: #999; font-style: italic;">Aucune note générale</div>`;
+                    html += `<div style="color: #999; font-style: italic; padding: 15px;">Aucune note générale pour cette cérémonie.</div>`;
                 }
                 html += `</div>`;
             } else {
@@ -1647,7 +1649,7 @@ function exportToPDF() {
                 const responsables = Array.from(row.querySelectorAll('.sector-cell')[1]?.querySelectorAll('.employee-item') || []).map(el => el.textContent);
                 const employees = Array.from(row.querySelectorAll('.sector-cell')[2]?.querySelectorAll('.employee-item') || []).map(el => el.textContent);
                 const noteElement = row.querySelector('.note-display-inline');
-                const noteText = noteElement ? noteElement.textContent.replace('📝 Note:', '').trim() : '';
+                const noteText = noteElement ? noteElement.innerHTML.replace('<strong>📝 Note:</strong> ', '') : '';
                 
                 html += `<div class="sector sector-${sectionClass}">`;
                 html += `<div>`;
