@@ -1555,7 +1555,16 @@ document.getElementById('employeeSelect').addEventListener('change', (e) => {
     if (e.target.value) selectEmployee(e.target.value);
 });
 document.getElementById('exportEmployeeBtn').addEventListener('click', exportEmployeeAssignments);
-document.getElementById('exportPdfBtn').addEventListener('click', () => window.print());
+document.getElementById('exportPdfBtn').addEventListener('click', () => {
+    // Forcer l'affichage de tous les éléments avant impression
+    document.querySelectorAll('.note-display-inline').forEach(note => {
+        note.style.display = 'block';
+        note.style.visibility = 'visible';
+    });
+    
+    // Lancer l'impression
+    window.print();
+});
 document.getElementById('exportTemplateBtn').addEventListener('click', exportTemplate);
 document.getElementById('manageEmployeesListBtn').addEventListener('click', showManageEmployeesList);
 document.getElementById('copyTemplateBtn').addEventListener('click', copyTemplateToAllCeremonies);
