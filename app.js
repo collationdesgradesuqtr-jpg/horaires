@@ -1555,10 +1555,9 @@ document.getElementById('employeeSelect').addEventListener('change', (e) => {
     if (e.target.value) selectEmployee(e.target.value);
 });
 document.getElementById('exportEmployeeBtn').addEventListener('click', exportEmployeeAssignments);
-// Fonction d'export PDF avec rendu complet des notes
+// Fonction d'export PDF qui lit depuis le DOM
 function exportToPDF() {
     const printWindow = window.open('', '_blank');
-    
     const ceremonyTitle = document.querySelector('.event-title')?.textContent || 'Cérémonie';
     
     let html = `
@@ -1570,16 +1569,16 @@ function exportToPDF() {
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         h1 { text-align: center; color: #006747; }
-        h2 { background: #006747; color: white; padding: 10px; margin-top: 30px; }
-        h2.section-avant { background: #28a745; }
-        h2.section-pendant { background: #ffc107; color: #000; }
-        h2.section-apres { background: #dc3545; }
-        h2.section-general { background: #0d6efd; }
+        h2 { padding: 15px; margin: 20px 0 10px 0; }
+        .section-avant { background: #28a745; color: white; }
+        .section-pendant { background: #ffc107; color: #000; }
+        .section-apres { background: #dc3545; color: white; }
+        .section-general { background: #0d6efd; color: white; }
         .sector { 
             display: grid; 
             grid-template-columns: 2fr 1fr 1fr; 
-            gap: 10px; 
-            padding: 15px; 
+            gap: 15px; 
+            padding: 20px; 
             margin: 10px 0; 
             border: 1px solid #ddd; 
             page-break-inside: avoid;
@@ -1588,88 +1587,98 @@ function exportToPDF() {
         .sector-pendant { background: #fff3cd; }
         .sector-apres { background: #f8d7da; }
         .sector-general { 
-            display: block !important; 
+            display: block !important;
             background: #cfe2ff !important;
-            grid-template-columns: 1fr !important;
         }
-        .sector-name { font-weight: bold; font-size: 16px; }
-        .sector-location { color: #666; margin-top: 5px; }
+        .sector-general .responsables-col,
+        .sector-general .employees-col {
+            display: none !important;
+        }
+        .sector-name { font-weight: bold; font-size: 16px; margin-bottom: 5px; }
+        .sector-location { color: #666; font-size: 14px; }
         .note { 
             grid-column: 1 / 4; 
             background: #fffbf0; 
             border: 2px solid #ffc107; 
-            padding: 10px; 
+            padding: 15px; 
             margin-top: 10px;
             border-radius: 5px;
+            page-break-inside: avoid;
         }
-        .note strong { color: #d4af37; }
+        .note strong { color: #d4af37; margin-right: 8px; }
         .employee-item { padding: 5px; margin: 3px 0; background: white; border-radius: 3px; }
-        @media print {
-            body { margin: 10mm; }
-            .sector { page-break-inside: avoid; }
-        }
     </style>
 </head>
 <body>
     <h1>${ceremonyTitle}</h1>
 `;
 
-    // Parcourir toutes les sections
-    const currentEventData = eventData[currentEvent];
-    if (currentEventData && currentEventData.sections) {
-        currentEventData.sections.forEach(section => {
-            const sectionClass = section.title.includes('AVANT') ? 'avant' :
-                               section.title.includes('PENDANT') ? 'pendant' :
-                               section.title.includes('APRÈS') || section.title.includes('APRES') ? 'apres' :
-                               section.title.includes('GÉNÉRAL') || section.title.includes('GENERAL') ? 'general' : '';
+    // Lire depuis le DOM actuel
+    const sections = document.querySelectorAll('.section');
+    sections.forEach(section => {
+        const sectionTitle = section.querySelector('.section-header .section-title')?.textContent || '';
+        const sectionClass = sectionTitle.includes('AVANT') ? 'avant' :
+                           sectionTitle.includes('PENDANT') ? 'pendant' :
+                           sectionTitle.includes('APRÈS') || sectionTitle.includes('APRES') ? 'apres' :
+                           sectionTitle.includes('GÉNÉRAL') || sectionTitle.includes('GENERAL') ? 'general' : '';
+        
+        html += `<h2 class="section-${sectionClass}">${sectionTitle}</h2>`;
+        
+        const sectorRows = section.querySelectorAll('.sector-row');
+        sectorRows.forEach(row => {
+            const isGeneral = row.classList.contains('sector-row-general');
             
-            html += `<h2 class="section-${sectionClass}">${section.title}</h2>`;
-            
-            if (section.sectors && section.sectors.length > 0) {
-                section.sectors.forEach(sector => {
-                    const isGeneral = section.title.includes('GÉNÉRAL') || section.title.includes('GENERAL');
-                    
-                    if (isGeneral) {
-                        // Affichage spécial pour GÉNÉRAL
-                        html += `<div class="sector sector-general">`;
-                        html += `<div class="sector-name">${sector.name}</div>`;
-                        if (sector.note && sector.note.trim()) {
-                            html += `<div class="note"><strong>📝 Note:</strong> ${sector.note.replace(/\n/g, '<br>')}</div>`;
-                        }
-                        html += `</div>`;
-                    } else {
-                        // Affichage normal
-                        html += `<div class="sector sector-${sectionClass}">`;
-                        html += `<div><div class="sector-name">${sector.name}</div>`;
-                        if (sector.location) html += `<div class="sector-location">📍 ${sector.location}</div>`;
-                        html += `</div>`;
-                        
-                        html += `<div><strong>Responsables</strong><br>`;
-                        if (sector.responsables && sector.responsables.length > 0) {
-                            sector.responsables.forEach(r => html += `<div class="employee-item">${r}</div>`);
-                        } else {
-                            html += `<div style="color:#999;">Aucun</div>`;
-                        }
-                        html += `</div>`;
-                        
-                        html += `<div><strong>Employés</strong><br>`;
-                        if (sector.employees && sector.employees.length > 0) {
-                            sector.employees.forEach(e => html += `<div class="employee-item">${e}</div>`);
-                        } else {
-                            html += `<div style="color:#999;">Aucun</div>`;
-                        }
-                        html += `</div>`;
-                        
-                        if (sector.note && sector.note.trim()) {
-                            html += `<div class="note"><strong>📝 Note:</strong> ${sector.note.replace(/\n/g, '<br>')}</div>`;
-                        }
-                        
-                        html += `</div>`;
-                    }
-                });
+            if (isGeneral) {
+                // Section GÉNÉRAL - affichage simplifié
+                html += `<div class="sector sector-general">`;
+                const noteText = row.textContent.replace('📝 Notes générales de la cérémonie', '').replace('✏️ Modifier', '').trim();
+                if (noteText) {
+                    html += `<div class="sector-name">Notes générales de la cérémonie</div>`;
+                    html += `<div class="note"><strong>📝 Note:</strong> ${noteText}</div>`;
+                } else {
+                    html += `<div class="sector-name">Notes générales</div>`;
+                    html += `<div style="color: #999; font-style: italic;">Aucune note générale</div>`;
+                }
+                html += `</div>`;
+            } else {
+                // Secteur normal
+                const sectorName = row.querySelector('.sector-name')?.textContent || '';
+                const sectorLocation = row.querySelector('.sector-location')?.textContent || '';
+                const responsables = Array.from(row.querySelectorAll('.sector-cell')[1]?.querySelectorAll('.employee-item') || []).map(el => el.textContent);
+                const employees = Array.from(row.querySelectorAll('.sector-cell')[2]?.querySelectorAll('.employee-item') || []).map(el => el.textContent);
+                const noteElement = row.querySelector('.note-display-inline');
+                const noteText = noteElement ? noteElement.textContent.replace('📝 Note:', '').trim() : '';
+                
+                html += `<div class="sector sector-${sectionClass}">`;
+                html += `<div>`;
+                html += `<div class="sector-name">${sectorName}</div>`;
+                if (sectorLocation) html += `<div class="sector-location">${sectorLocation}</div>`;
+                html += `</div>`;
+                
+                html += `<div class="responsables-col"><strong>Responsables</strong><br>`;
+                if (responsables.length > 0) {
+                    responsables.forEach(r => html += `<div class="employee-item">${r}</div>`);
+                } else {
+                    html += `<div style="color:#999;">Aucun</div>`;
+                }
+                html += `</div>`;
+                
+                html += `<div class="employees-col"><strong>Employés</strong><br>`;
+                if (employees.length > 0) {
+                    employees.forEach(e => html += `<div class="employee-item">${e}</div>`);
+                } else {
+                    html += `<div style="color:#999;">Aucun</div>`;
+                }
+                html += `</div>`;
+                
+                if (noteText) {
+                    html += `<div class="note"><strong>📝 Note:</strong> ${noteText}</div>`;
+                }
+                
+                html += `</div>`;
             }
         });
-    }
+    });
     
     html += `
     <script>
