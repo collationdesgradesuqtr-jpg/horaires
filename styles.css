@@ -1729,3 +1729,60 @@ body::before {
         width: 100% !important;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   🔗 BOUTON LIEN PORTAIL UQTR
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 15px;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #006747 0%, #004d34 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 103, 71, 0.2);
+}
+
+.link-btn:hover {
+    background: linear-gradient(135deg, #004d34 0%, #003824 100%);
+    box-shadow: 0 4px 12px rgba(0, 103, 71, 0.3);
+    transform: translateY(-2px);
+}
+
+.link-btn:active {
+    transform: translateY(0);
+}
+
+.link-btn .btn-icon {
+    font-size: 16px;
+}
+
+.link-btn .btn-text {
+    font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .link-btn {
+        margin-left: 10px;
+        padding: 8px 15px;
+        font-size: 13px;
+    }
+    
+    .link-btn .btn-text {
+        display: none;
+    }
+    
+    .link-btn .btn-icon {
+        font-size: 18px;
+    }
+}
