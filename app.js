@@ -1555,16 +1555,136 @@ document.getElementById('employeeSelect').addEventListener('change', (e) => {
     if (e.target.value) selectEmployee(e.target.value);
 });
 document.getElementById('exportEmployeeBtn').addEventListener('click', exportEmployeeAssignments);
-document.getElementById('exportPdfBtn').addEventListener('click', () => {
-    // Forcer l'affichage de tous les éléments avant impression
-    document.querySelectorAll('.note-display-inline').forEach(note => {
-        note.style.display = 'block';
-        note.style.visibility = 'visible';
-    });
+// Fonction d'export PDF avec rendu complet des notes
+function exportToPDF() {
+    const printWindow = window.open('', '_blank');
     
-    // Lancer l'impression
-    window.print();
-});
+    const ceremonyTitle = document.querySelector('.event-title')?.textContent || 'Cérémonie';
+    
+    let html = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>${ceremonyTitle}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1 { text-align: center; color: #006747; }
+        h2 { background: #006747; color: white; padding: 10px; margin-top: 30px; }
+        h2.section-avant { background: #28a745; }
+        h2.section-pendant { background: #ffc107; color: #000; }
+        h2.section-apres { background: #dc3545; }
+        h2.section-general { background: #0d6efd; }
+        .sector { 
+            display: grid; 
+            grid-template-columns: 2fr 1fr 1fr; 
+            gap: 10px; 
+            padding: 15px; 
+            margin: 10px 0; 
+            border: 1px solid #ddd; 
+            page-break-inside: avoid;
+        }
+        .sector-avant { background: #d4edda; }
+        .sector-pendant { background: #fff3cd; }
+        .sector-apres { background: #f8d7da; }
+        .sector-general { 
+            display: block !important; 
+            background: #cfe2ff !important;
+            grid-template-columns: 1fr !important;
+        }
+        .sector-name { font-weight: bold; font-size: 16px; }
+        .sector-location { color: #666; margin-top: 5px; }
+        .note { 
+            grid-column: 1 / 4; 
+            background: #fffbf0; 
+            border: 2px solid #ffc107; 
+            padding: 10px; 
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+        .note strong { color: #d4af37; }
+        .employee-item { padding: 5px; margin: 3px 0; background: white; border-radius: 3px; }
+        @media print {
+            body { margin: 10mm; }
+            .sector { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body>
+    <h1>${ceremonyTitle}</h1>
+`;
+
+    // Parcourir toutes les sections
+    const currentEventData = eventData[currentEvent];
+    if (currentEventData && currentEventData.sections) {
+        currentEventData.sections.forEach(section => {
+            const sectionClass = section.title.includes('AVANT') ? 'avant' :
+                               section.title.includes('PENDANT') ? 'pendant' :
+                               section.title.includes('APRÈS') || section.title.includes('APRES') ? 'apres' :
+                               section.title.includes('GÉNÉRAL') || section.title.includes('GENERAL') ? 'general' : '';
+            
+            html += `<h2 class="section-${sectionClass}">${section.title}</h2>`;
+            
+            if (section.sectors && section.sectors.length > 0) {
+                section.sectors.forEach(sector => {
+                    const isGeneral = section.title.includes('GÉNÉRAL') || section.title.includes('GENERAL');
+                    
+                    if (isGeneral) {
+                        // Affichage spécial pour GÉNÉRAL
+                        html += `<div class="sector sector-general">`;
+                        html += `<div class="sector-name">${sector.name}</div>`;
+                        if (sector.note && sector.note.trim()) {
+                            html += `<div class="note"><strong>📝 Note:</strong> ${sector.note.replace(/\n/g, '<br>')}</div>`;
+                        }
+                        html += `</div>`;
+                    } else {
+                        // Affichage normal
+                        html += `<div class="sector sector-${sectionClass}">`;
+                        html += `<div><div class="sector-name">${sector.name}</div>`;
+                        if (sector.location) html += `<div class="sector-location">📍 ${sector.location}</div>`;
+                        html += `</div>`;
+                        
+                        html += `<div><strong>Responsables</strong><br>`;
+                        if (sector.responsables && sector.responsables.length > 0) {
+                            sector.responsables.forEach(r => html += `<div class="employee-item">${r}</div>`);
+                        } else {
+                            html += `<div style="color:#999;">Aucun</div>`;
+                        }
+                        html += `</div>`;
+                        
+                        html += `<div><strong>Employés</strong><br>`;
+                        if (sector.employees && sector.employees.length > 0) {
+                            sector.employees.forEach(e => html += `<div class="employee-item">${e}</div>`);
+                        } else {
+                            html += `<div style="color:#999;">Aucun</div>`;
+                        }
+                        html += `</div>`;
+                        
+                        if (sector.note && sector.note.trim()) {
+                            html += `<div class="note"><strong>📝 Note:</strong> ${sector.note.replace(/\n/g, '<br>')}</div>`;
+                        }
+                        
+                        html += `</div>`;
+                    }
+                });
+            }
+        });
+    }
+    
+    html += `
+    <script>
+        window.onload = function() {
+            setTimeout(() => window.print(), 500);
+        };
+    </script>
+</body>
+</html>`;
+    
+    printWindow.document.write(html);
+    printWindow.document.close();
+}
+
+document.getElementById('exportPdfBtn').addEventListener('click', exportToPDF);
 document.getElementById('exportTemplateBtn').addEventListener('click', exportTemplate);
 document.getElementById('manageEmployeesListBtn').addEventListener('click', showManageEmployeesList);
 document.getElementById('copyTemplateBtn').addEventListener('click', copyTemplateToAllCeremonies);
