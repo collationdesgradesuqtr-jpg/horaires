@@ -1231,12 +1231,26 @@ function exportTemplate() {
             } else if (section.title.includes('APRÈS') || section.title.includes('APRES')) {
                 backgroundColor = '#f8d7da';
                 sectionBadgeClass = 'section-apres';
+            } else if (section.title.includes('GÉNÉRAL') || section.title.includes('GENERAL')) {
+                backgroundColor = '#cfe2ff';
+                sectionBadgeClass = 'section-general';
             }
             
             sectionsHTML += `
                 <div class="section-export" style="margin-bottom: 20px; page-break-inside: avoid;">
                     <h2 class="section-title ${sectionBadgeClass}">${section.title}</h2>
-                    ${section.sectors.map(sector => `
+                    ${section.sectors.map(sector => {
+                        const isGeneral = section.title.includes('GÉNÉRAL') || section.title.includes('GENERAL');
+                        if (isGeneral) {
+                            return `
+                        <div class="sector-export" style="background: ${backgroundColor}; padding: 20px; margin-bottom: 8px; border-radius: 8px; page-break-inside: avoid;">
+                            <div style="font-weight: bold; font-size: 14px; color: #0d6efd; margin-bottom: 10px;">📝 Notes générales de la cérémonie</div>
+                            ${sector.note && sector.note.trim() ? 
+                                `<div style="background: #fffbf0; border: 2px solid #ffc107; padding: 15px; border-radius: 5px; text-align: center;">${sector.note.replace(/\n/g, '<br>')}</div>` 
+                                : '<div style="color: #999; font-style: italic;">Aucune note générale</div>'}
+                        </div>`;
+                        }
+                        return `
                         <div class="sector-export" style="background: ${backgroundColor}; padding: 12px; margin-bottom: 8px; border-radius: 8px; page-break-inside: avoid;">
                             <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 15px;">
                                 <div>
@@ -1256,8 +1270,9 @@ function exportTemplate() {
                                         : '<div style="color: #999; font-size: 9pt;">Aucun</div>'}
                                 </div>
                             </div>
+                            ${sector.note && sector.note.trim() ? `<div style="grid-column: 1 / -1; background: #fffbf0; border: 2px solid #ffc107; padding: 10px; margin-top: 10px; border-radius: 5px;"><strong style="color: #d4af37;">📝 Note:</strong> ${sector.note.replace(/\n/g, '<br>')}</div>` : ''}
                         </div>
-                    `).join('')}
+                    `;}).join('')}
                 </div>
             `;
         });
