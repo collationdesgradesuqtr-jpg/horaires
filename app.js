@@ -1462,7 +1462,6 @@ function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionCo
         <div style="margin-top: 10px; display: flex; gap: 8px; position: relative;">
             ${appMode === 'admin' ? `
                 <button class="btn btn-edit btn-sm" onclick="editSector('${eventName}', ${sectionIndex}, ${sectorIndex})" title="Modifier">✏️</button>
-                <button class="btn btn-danger btn-sm" onclick="deleteSector('${eventName}', ${sectionIndex}, ${sectorIndex})" title="Supprimer">🗑️</button>
             ` : ''}
             ${noteButton}
         </div>
