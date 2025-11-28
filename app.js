@@ -1477,6 +1477,15 @@ function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionCo
     `;
     row.appendChild(responsablesCell);
     
+    // Ajouter la note après responsablesCell mais avant employeeCell (si elle existe)
+    let noteDisplayElement = null;
+    if (sector.note && sector.note.trim()) {
+        noteDisplayElement = document.createElement('div');
+        noteDisplayElement.className = 'note-display-inline';
+        noteDisplayElement.innerHTML = '<strong>📝 Note:</strong> ' + sector.note.replace(/\n/g, '<br>');
+        row.appendChild(noteDisplayElement);
+    }
+    
     if (appMode === 'admin') {
         const respBtn = responsablesCell.querySelector('.manage-resp-btn');
         console.log('🔍 Recherche bouton Responsables:', respBtn);
@@ -1512,14 +1521,6 @@ function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionCo
         } else {
             console.warn('❌ Bouton Employés NON trouvé');
         }
-    }
-    
-    // ✅ Afficher la note toujours visible sous le secteur (si elle existe)
-    if (sector.note && sector.note.trim()) {
-        const noteDisplay = document.createElement('div');
-        noteDisplay.className = 'note-display-inline';
-        noteDisplay.innerHTML = '<strong>📝 Note:</strong> ' + sector.note.replace(/\n/g, '<br>');
-        row.appendChild(noteDisplay);
     }
     
     return row;
