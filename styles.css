@@ -912,20 +912,20 @@ body::before {
     
     /* FORCER l'affichage des notes */
     
-/* Forcer le positionnement avec des sélecteurs plus spécifiques */
-.sector-row > .sector-cell:first-of-type {
+/* Positionnement avec classes spécifiques */
+.sector-info-cell {
     grid-column: 1;
     grid-row: 1;
 }
 
-.sector-row > .sector-cell:nth-of-type(2) {
+.sector-resp-cell {
     grid-column: 2;
     grid-row: 1;
 }
 
-.sector-row > .sector-cell:last-of-type {
+.sector-emp-cell {
     grid-column: 3;
-    grid-row: 1 / span 2; /* Employés s'étendent sur 2 lignes */
+    grid-row: 1 / span 2; /* S'étend sur 2 lignes pour laisser place à la note */
 }
 
 .note-display-inline {

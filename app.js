@@ -1456,6 +1456,7 @@ function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionCo
         }
     }
     
+    infoCell.classList.add('sector-info-cell');
     infoCell.innerHTML = `
         <div class="sector-name">${sector.name}</div>
         ${sector.location ? `<div class="sector-location">📍 ${sector.location}</div>` : ''}
@@ -1469,7 +1470,7 @@ function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionCo
     row.appendChild(infoCell);
     
     const responsablesCell = document.createElement('div');
-    responsablesCell.className = 'sector-cell';
+    responsablesCell.className = 'sector-cell sector-resp-cell';
     responsablesCell.innerHTML = `
         <div class="sector-cell-header" style="color: #000000;">Responsables</div>
         ${sector.responsables.length > 0 ? sector.responsables.map(r => `<div class="employee-item">${r}</div>`).join('') : '<div style="color:#999;">Aucun</div>'}
@@ -1501,7 +1502,7 @@ function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionCo
     }
     
     const employeeCell = document.createElement('div');
-    employeeCell.className = 'sector-cell';
+    employeeCell.className = 'sector-cell sector-emp-cell';
     employeeCell.innerHTML = `
         <div class="sector-cell-header" style="color: #000000;">Employés</div>
         ${sector.employees.length > 0 ? sector.employees.map(e => `<div class="employee-item">${e}</div>`).join('') : '<div style="color:#999;">Aucun</div>'}
