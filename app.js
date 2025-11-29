@@ -1478,14 +1478,6 @@ function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionCo
     `;
     row.appendChild(responsablesCell);
     
-    // Ajouter la note après responsables
-    if (sector.note && sector.note.trim()) {
-        const noteEl = document.createElement('div');
-        noteEl.className = 'sector-note-display';
-        noteEl.innerHTML = '<strong>📝 Note:</strong> ' + sector.note.replace(/\n/g, '<br>');
-        row.appendChild(noteEl);
-    }
-    
     if (appMode === 'admin') {
         const respBtn = responsablesCell.querySelector('.manage-resp-btn');
         console.log('🔍 Recherche bouton Responsables:', respBtn);
@@ -1508,6 +1500,14 @@ function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionCo
         ${appMode === 'admin' ? `<button class="btn btn-sm manage-emp-btn" style="margin-top:10px; background: ${buttonColor}; color: white; border: none;" data-event="${eventName}" data-section="${sectionIndex}" data-sector="${sectorIndex}">➕ Ajouter</button>` : ''}
     `;
     row.appendChild(employeeCell);
+    
+    // Ajouter la note À LA FIN (après toutes les cellules)
+    if (sector.note && sector.note.trim()) {
+        const noteEl = document.createElement('div');
+        noteEl.className = 'sector-note-display';
+        noteEl.innerHTML = '<strong>📝 Note:</strong> ' + sector.note.replace(/\n/g, '<br>');
+        row.appendChild(noteEl);
+    }
     
     if (appMode === 'admin') {
         const empBtn = employeeCell.querySelector('.manage-emp-btn');
