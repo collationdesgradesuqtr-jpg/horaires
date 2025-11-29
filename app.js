@@ -1285,6 +1285,7 @@ function exportTemplate() {
                             <div>
                                 <strong>${sector.name}</strong>
                                 ${sector.location ? `<div style="font-size: 9pt; color: #666;">📍 ${sector.location}</div>` : ''}
+                                ${sector.note && sector.note.trim() ? `<div style="background: #fffbf0; border: 2px solid #ffc107; padding: 10px; margin-top: 10px; border-radius: 5px; font-size: 9pt;"><strong style="color: #d4af37;">📝 Note:</strong> ${sector.note.replace(/\n/g, '<br>')}</div>` : ''}
                             </div>
                             <div>
                                 <div style="font-weight: bold; margin-bottom: 5px;">Responsables</div>
