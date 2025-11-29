@@ -1471,21 +1471,21 @@ function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionCo
     
     const responsablesCell = document.createElement('div');
     responsablesCell.className = 'sector-cell sector-resp-cell';
-    responsablesCell.innerHTML = `
+    
+    // Créer le contenu HTML avec la note à l'intérieur si elle existe
+    let respContent = `
         <div class="sector-cell-header" style="color: #000000;">Responsables</div>
         ${sector.responsables.length > 0 ? sector.responsables.map(r => `<div class="employee-item">${r}</div>`).join('') : '<div style="color:#999;">Aucun</div>'}
         ${appMode === 'admin' ? `<button class="btn btn-sm manage-resp-btn" style="margin-top:10px; background: ${buttonColor}; color: white; border: none;" data-event="${eventName}" data-section="${sectionIndex}" data-sector="${sectorIndex}">➕ Ajouter</button>` : ''}
     `;
-    row.appendChild(responsablesCell);
     
-    // Ajouter la note après responsablesCell mais avant employeeCell (si elle existe)
-    let noteDisplayElement = null;
+    // Ajouter la note APRÈS le contenu des responsables
     if (sector.note && sector.note.trim()) {
-        noteDisplayElement = document.createElement('div');
-        noteDisplayElement.className = 'note-display-inline';
-        noteDisplayElement.innerHTML = '<strong>📝 Note:</strong> ' + sector.note.replace(/\n/g, '<br>');
-        row.appendChild(noteDisplayElement);
+        respContent += `<div class="note-display-inline-inside"><strong>📝 Note:</strong> ${sector.note.replace(/\n/g, '<br>')}</div>`;
     }
+    
+    responsablesCell.innerHTML = respContent;
+    row.appendChild(responsablesCell);
     
     if (appMode === 'admin') {
         const respBtn = responsablesCell.querySelector('.manage-resp-btn');
