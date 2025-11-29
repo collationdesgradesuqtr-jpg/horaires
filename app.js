@@ -1467,25 +1467,31 @@ function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionCo
             ${noteButton}
         </div>
     `;
-    row.appendChild(infoCell);
+    // Créer un wrapper pour les colonnes 1 et 2 (secteur + responsables + note)
+    const leftWrapper = document.createElement('div');
+    leftWrapper.className = 'sector-left-wrapper';
+    
+    // Ajouter infoCell dans le wrapper
+    leftWrapper.appendChild(infoCell);
     
     const responsablesCell = document.createElement('div');
     responsablesCell.className = 'sector-cell sector-resp-cell';
-    
-    // Créer le contenu HTML avec la note à l'intérieur si elle existe
-    let respContent = `
+    responsablesCell.innerHTML = `
         <div class="sector-cell-header" style="color: #000000;">Responsables</div>
         ${sector.responsables.length > 0 ? sector.responsables.map(r => `<div class="employee-item">${r}</div>`).join('') : '<div style="color:#999;">Aucun</div>'}
         ${appMode === 'admin' ? `<button class="btn btn-sm manage-resp-btn" style="margin-top:10px; background: ${buttonColor}; color: white; border: none;" data-event="${eventName}" data-section="${sectionIndex}" data-sector="${sectorIndex}">➕ Ajouter</button>` : ''}
     `;
+    leftWrapper.appendChild(responsablesCell);
     
-    // Ajouter la note APRÈS le contenu des responsables
+    // Ajouter la note dans le wrapper si elle existe
     if (sector.note && sector.note.trim()) {
-        respContent += `<div class="note-display-inline-inside"><strong>📝 Note:</strong> ${sector.note.replace(/\n/g, '<br>')}</div>`;
+        const noteEl = document.createElement('div');
+        noteEl.className = 'note-display-wrapper';
+        noteEl.innerHTML = '<strong>📝 Note:</strong> ' + sector.note.replace(/\n/g, '<br>');
+        leftWrapper.appendChild(noteEl);
     }
     
-    responsablesCell.innerHTML = respContent;
-    row.appendChild(responsablesCell);
+    row.appendChild(leftWrapper);
     
     if (appMode === 'admin') {
         const respBtn = responsablesCell.querySelector('.manage-resp-btn');
