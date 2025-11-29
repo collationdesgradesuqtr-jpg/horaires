@@ -1467,31 +1467,24 @@ function createSectorRow(sector, eventName, sectionIndex, sectorIndex, sectionCo
             ${noteButton}
         </div>
     `;
-    // Créer un wrapper pour les colonnes 1 et 2 (secteur + responsables + note)
-    const leftWrapper = document.createElement('div');
-    leftWrapper.className = 'sector-left-wrapper';
-    
-    // Ajouter infoCell dans le wrapper
-    leftWrapper.appendChild(infoCell);
+    row.appendChild(infoCell);
     
     const responsablesCell = document.createElement('div');
-    responsablesCell.className = 'sector-cell sector-resp-cell';
+    responsablesCell.className = 'sector-cell';
     responsablesCell.innerHTML = `
         <div class="sector-cell-header" style="color: #000000;">Responsables</div>
         ${sector.responsables.length > 0 ? sector.responsables.map(r => `<div class="employee-item">${r}</div>`).join('') : '<div style="color:#999;">Aucun</div>'}
         ${appMode === 'admin' ? `<button class="btn btn-sm manage-resp-btn" style="margin-top:10px; background: ${buttonColor}; color: white; border: none;" data-event="${eventName}" data-section="${sectionIndex}" data-sector="${sectorIndex}">➕ Ajouter</button>` : ''}
     `;
-    leftWrapper.appendChild(responsablesCell);
+    row.appendChild(responsablesCell);
     
-    // Ajouter la note dans le wrapper si elle existe
+    // Ajouter la note après responsables
     if (sector.note && sector.note.trim()) {
         const noteEl = document.createElement('div');
-        noteEl.className = 'note-display-wrapper';
+        noteEl.className = 'sector-note-display';
         noteEl.innerHTML = '<strong>📝 Note:</strong> ' + sector.note.replace(/\n/g, '<br>');
-        leftWrapper.appendChild(noteEl);
+        row.appendChild(noteEl);
     }
-    
-    row.appendChild(leftWrapper);
     
     if (appMode === 'admin') {
         const respBtn = responsablesCell.querySelector('.manage-resp-btn');
