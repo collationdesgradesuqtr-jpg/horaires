@@ -915,24 +915,6 @@ body::before {
 /* Wrapper pour colonnes secteur + responsables + note */
 
 /* Note à l'intérieur de responsablesCell qui déborde sur la gauche */
-.note-display-inline-inside {
-    display: block !important;
-    position: relative;
-    left: calc(-100% - 20px); /* Déborde à gauche pour couvrir la colonne 1 */
-    width: calc(200% + 20px); /* Largeur = 2 colonnes + gap */
-    background: #fffbf0;
-    border: 2px solid #ffc107;
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin-top: 10px;
-    box-shadow: 0 2px 6px rgba(255, 193, 7, 0.15);
-}
-
-.note-display-inline-inside strong {
-    color: #d4af37;
-    margin-right: 8px;
-}
-
 .note-display-inline {
         display: block !important;
         visibility: visible !important;
