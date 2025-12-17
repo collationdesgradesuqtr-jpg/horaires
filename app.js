@@ -2126,4 +2126,4 @@ console.log('🚀 Application Cérémonie des Grades - Démarrage...');
 console.log('🔐 Système d\'authentification: ACTIVÉ');
 console.log('⏳ Initialisation de l\'authentification Firebase...');
 console.log('📌 Note: Attendez le message "✅ Authentification anonyme réussie" avant de modifier des données');
-
+// mise a jour firebase
