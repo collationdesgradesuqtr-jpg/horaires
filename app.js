@@ -43,6 +43,9 @@ try {
             } else {
                 isAdminAuthenticated = false;
             }
+            
+            // ✅ Charger les données après l'authentification
+            initializeData();
         } else {
             console.log('⏳ Authentification en cours...');
             // Authentification anonyme automatique
@@ -51,6 +54,8 @@ try {
                     console.log('✅ Authentification anonyme réussie');
                     isAuthReady = true;
                     isAdminAuthenticated = false;
+                    // ✅ MAINTENANT on peut charger les données
+                    initializeData();
                 })
                 .catch((error) => {
                     console.error('❌ Erreur d\'authentification:', error);
@@ -1706,7 +1711,7 @@ if (missingFunctions.length > 0) {
 }
 
 setMode('employee');
-initializeData();
+// initializeData(); // ❌ NE PAS appeler ici - sera appelé après l'authentification
 
 // ✅ NOUVELLE FONCTION : Gérer les notes de secteur
 function manageSectorNote(eventName, sectionIndex, sectorIndex) {
