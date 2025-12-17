@@ -2,7 +2,7 @@
 // Configuration Firebase
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
-import { getAuth, signInAnonymously, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getAuth, signInAnonymously, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 const firebaseConfig = {
 apiKey: "AIzaSyDIxy8JZQoy1SCIP_ZWkyqIyK2qCJ6XveA",
@@ -16,6 +16,10 @@ apiKey: "AIzaSyDIxy8JZQoy1SCIP_ZWkyqIyK2qCJ6XveA",
 
 let app, database, auth;
 let isAuthReady = false;
+let isAdminAuthenticated = false; // ✅ Track si on est vraiment admin via Firebase Auth
+
+// ✅ CREDENTIALS ADMIN - Le compte doit être créé dans Firebase Console
+const ADMIN_EMAIL = 'admin@ceremonie-grades.com';
 
 try {
     app = initializeApp(firebaseConfig);
@@ -27,7 +31,18 @@ try {
     onAuthStateChanged(auth, (user) => {
         if (user) {
             console.log('✅ Utilisateur authentifié:', user.uid);
+            console.log('📧 Email:', user.email || 'Anonyme');
             isAuthReady = true;
+            
+            // ✅ Vérifier si c'est un admin
+            if (user.email === ADMIN_EMAIL) {
+                isAdminAuthenticated = true;
+                console.log('🔑 Mode Admin activé via Firebase Auth');
+                // Activer automatiquement le mode admin
+                setTimeout(() => setMode('admin'), 100);
+            } else {
+                isAdminAuthenticated = false;
+            }
         } else {
             console.log('⏳ Authentification en cours...');
             // Authentification anonyme automatique
@@ -35,6 +50,7 @@ try {
                 .then(() => {
                     console.log('✅ Authentification anonyme réussie');
                     isAuthReady = true;
+                    isAdminAuthenticated = false;
                 })
                 .catch((error) => {
                     console.error('❌ Erreur d\'authentification:', error);
@@ -518,6 +534,13 @@ async function saveData() {
 }
 
 function setMode(mode) {
+    // ✅ SÉCURITÉ: Empêcher l'accès au mode admin si pas authentifié via Firebase
+    if (mode === 'admin' && !isAdminAuthenticated) {
+        console.warn('⚠️ Tentative d\'accès au mode admin sans authentification Firebase');
+        alert('⚠️ Vous devez vous connecter avec le mot de passe admin');
+        return;
+    }
+    
     appMode = mode;
     document.querySelectorAll('.mode-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.mode === mode);
@@ -1531,22 +1554,66 @@ async function deleteSector(eventName, sectionIndex, sectorIndex) {
     renderEvent(currentEvent);
 }
 
-function loginAdmin() {
+async function loginAdmin() {
     const password = document.getElementById('adminPassword').value;
-    if (password === ADMIN_PASSWORD) {
-        setMode('admin');
+    
+    // Vérifier d'abord que le mot de passe est correct
+    if (password !== ADMIN_PASSWORD) {
+        document.getElementById('loginError').textContent = 'Mot de passe incorrect';
+        return;
+    }
+    
+    try {
+        // ✅ Se déconnecter de la session anonyme d'abord
+        await signOut(auth);
+        
+        // ✅ Se connecter avec le compte admin Firebase
+        await signInWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASSWORD);
+        
+        console.log('🔑 Connexion admin réussie');
         document.getElementById('loginModal').style.display = 'none';
         document.getElementById('adminPassword').value = '';
         document.getElementById('loginError').textContent = '';
-    } else {
-        document.getElementById('loginError').textContent = 'Mot de passe incorrect';
+        
+        // Le mode admin sera activé automatiquement par onAuthStateChanged
+        
+    } catch (error) {
+        console.error('❌ Erreur de connexion admin:', error);
+        
+        if (error.code === 'auth/user-not-found') {
+            document.getElementById('loginError').textContent = '⚠️ Compte admin non configuré dans Firebase Console';
+            console.error('📋 INSTRUCTIONS: Créer un compte avec email:', ADMIN_EMAIL, 'et mot de passe:', ADMIN_PASSWORD);
+        } else if (error.code === 'auth/wrong-password') {
+            document.getElementById('loginError').textContent = 'Mot de passe incorrect dans Firebase';
+        } else if (error.code === 'auth/invalid-credential') {
+            document.getElementById('loginError').textContent = '⚠️ Compte admin non configuré. Voir la console pour les instructions.';
+            console.error('📋 INSTRUCTIONS: Aller dans Firebase Console → Authentication → Users → Add user');
+            console.error('Email:', ADMIN_EMAIL);
+            console.error('Password:', ADMIN_PASSWORD);
+        } else {
+            document.getElementById('loginError').textContent = 'Erreur: ' + error.message;
+        }
     }
 }
 
-document.getElementById('modeEmployee').addEventListener('click', () => setMode('employee'));
-document.getElementById('modeRead').addEventListener('click', () => setMode('read'));
+document.getElementById('modeEmployee').addEventListener('click', async () => {
+    // ✅ Si on est admin, se déconnecter d'abord
+    if (isAdminAuthenticated) {
+        await signOut(auth);
+        console.log('👋 Déconnexion admin, retour en mode employé');
+    }
+    setMode('employee');
+});
+document.getElementById('modeRead').addEventListener('click', async () => {
+    // ✅ Si on est admin, se déconnecter d'abord
+    if (isAdminAuthenticated) {
+        await signOut(auth);
+        console.log('👋 Déconnexion admin, retour en mode lecture');
+    }
+    setMode('read');
+});
 document.getElementById('modeAdmin').addEventListener('click', () => {
-    if (appMode !== 'admin') {
+    if (!isAdminAuthenticated) {
         document.getElementById('loginModal').style.display = 'block';
         document.getElementById('adminPassword').focus();
     }
