@@ -40,14 +40,13 @@ try {
                 console.log('🔑 Mode Admin activé via Firebase Auth');
                 // Activer automatiquement le mode admin
                 setTimeout(() => setMode('admin'), 100);
-                // ✅ Charger les données SEULEMENT pour l'admin
-                initializeData();
             } else {
                 isAdminAuthenticated = false;
-                // ⚠️ NE PAS charger les données pour les utilisateurs anonymes
-                // Ils n'ont que l'accès lecture et ne peuvent pas modifier
                 console.log('👁️ Mode lecture seul (anonyme)');
             }
+            
+            // ✅ Charger les données pour TOUS les utilisateurs authentifiés
+            initializeData();
         } else {
             console.log('⏳ Authentification en cours...');
             // Authentification anonyme automatique
@@ -56,9 +55,8 @@ try {
                     console.log('✅ Authentification anonyme réussie');
                     isAuthReady = true;
                     isAdminAuthenticated = false;
-                    // ⚠️ NE PAS charger initializeData() ici
-                    // Les utilisateurs anonymes ont seulement l'accès lecture
-                    console.log('👁️ Accès lecture seule activé');
+                    // ✅ Charger les données en lecture seule
+                    initializeData();
                 })
                 .catch((error) => {
                     console.error('❌ Erreur d\'authentification:', error);
