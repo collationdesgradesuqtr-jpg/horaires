@@ -1,7 +1,7 @@
 // ✅ VERSION SÉCURISÉE 17-DÉC-2024 - FIREBASE AUTH ADMIN ACTIVÉ
 // Modifications: signInWithEmailAndPassword, signOut, isAdminAuthenticated
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import { getDatabase, ref, set, get, onValue } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+import { getDatabase, ref, set, get, onValue, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
 import { getAuth, signInAnonymously, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 const firebaseConfig = {
@@ -501,7 +501,14 @@ async function saveData() {
         };
         console.log('📦 Données à sauvegarder:', dataToSave);
         
-        await set(ref(database, '/'), dataToSave);
+        // ✅ CRITIQUE: Sauvegarder les données sans écraser adminUsers
+        // On utilise update() au lieu de set() pour ne pas écraser toute la racine
+        const updates = {};
+        for (const [key, value] of Object.entries(dataToSave)) {
+            updates[`/${key}`] = value;
+        }
+        
+        await update(ref(database), updates);
         console.log('✅ Données sauvegardées dans Firebase avec succès !');
         
         // Vérification immédiate
