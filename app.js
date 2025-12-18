@@ -473,7 +473,7 @@ async function saveData() {
         // Attendre jusqu'à 5 secondes pour l'authentification
         let waitTime = 0;
         while (!isAuthReady && waitTime < 5000) {
-             new Promise(resolve => setTimeout(resolve, 100));
+            await new Promise(resolve => setTimeout(resolve, 100));
             waitTime += 100;
         }
         
@@ -501,7 +501,7 @@ async function saveData() {
         };
         console.log('📦 Données à sauvegarder:', dataToSave);
         
-          await set(ref(database, '/'), dataToSave);
+        await set(ref(database, '/'), dataToSave);
         console.log('✅ Données sauvegardées dans Firebase avec succès !');
         
         // Vérification immédiate
