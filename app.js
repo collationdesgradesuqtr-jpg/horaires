@@ -501,7 +501,7 @@ async function saveData() {
         };
         console.log('📦 Données à sauvegarder:', dataToSave);
         
-        await set(ref(database, 'events'), dataToSave);
+          await set(ref(database, '/'), dataToSave);
         console.log('✅ Données sauvegardées dans Firebase avec succès !');
         
         // Vérification immédiate
