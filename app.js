@@ -500,7 +500,20 @@ async function saveData() {
         return;
     }
     
-    console.log('✅ Utilisateur authentifié, sauvegarde en cours...');
+    // ✅ DEBUG: Afficher les infos de l'utilisateur qui sauvegarde
+    console.log('👤 Utilisateur qui sauvegarde:');
+    console.log('   UID:', currentUser.uid);
+    console.log('   Email:', currentUser.email || 'Anonyme');
+    console.log('   isAdminAuthenticated:', isAdminAuthenticated);
+    
+    // ✅ VÉRIFICATION CRITIQUE: Bloquer si pas admin
+    if (!isAdminAuthenticated) {
+        console.error('❌ Tentative de sauvegarde par un utilisateur non-admin!');
+        alert('⚠️ Accès refusé: Seul l\'administrateur peut sauvegarder les modifications.\n\nConnectez-vous en mode Admin pour pouvoir modifier les données.');
+        return;
+    }
+    
+    console.log('✅ Utilisateur admin vérifié, sauvegarde en cours...');
     
     try {
         const dataToSave = {
