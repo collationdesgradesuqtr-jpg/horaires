@@ -38,11 +38,14 @@ try {
             if (user.email === ADMIN_EMAIL) {
                 isAdminAuthenticated = true;
                 console.log('🔑 Mode Admin activé via Firebase Auth');
+                console.log('🔍 DEBUG: isAdminAuthenticated est maintenant:', isAdminAuthenticated);
+                console.log('🔍 DEBUG: Vérification - typeof isAdminAuthenticated:', typeof isAdminAuthenticated);
                 // Activer automatiquement le mode admin
                 setTimeout(() => setMode('admin'), 100);
             } else {
                 isAdminAuthenticated = false;
                 console.log('👁️ Mode lecture seul (anonyme)');
+                console.log('🔍 DEBUG: isAdminAuthenticated est maintenant:', isAdminAuthenticated);
             }
             
             // ✅ Charger les données pour TOUS les utilisateurs authentifiés
@@ -1604,6 +1607,7 @@ async function loginAdmin() {
         await signInWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASSWORD);
         
         console.log('🔑 Connexion admin réussie');
+        console.log('🔍 DEBUG après login: isAdminAuthenticated =', isAdminAuthenticated);
         document.getElementById('loginModal').style.display = 'none';
         document.getElementById('adminPassword').value = '';
         document.getElementById('loginError').textContent = '';
