@@ -18,6 +18,7 @@ let app, database, auth;
 let isAuthReady = false;
 let isAdminAuthenticated = false; // ✅ Track si on est vraiment admin via Firebase Auth
 let isDataListenerActive = false; // ✅ Empêcher les listeners multiples
+let dataUnsubscribe = null; // ✅ Fonction pour détacher le listener
 
 // ✅ CREDENTIALS ADMIN - Le compte doit être créé dans Firebase Console
 const ADMIN_EMAIL = 'admin@ceremonie-grades.com';
@@ -402,7 +403,7 @@ async function initializeData() {
         const dataRef = ref(database, '/');
         
         // ✅ ÉCOUTER LES CHANGEMENTS EN TEMPS RÉEL
-        onValue(dataRef, (snapshot) => {
+        dataUnsubscribe = onValue(dataRef, (snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
                 console.log('🔄 Données mises à jour depuis Firebase');
@@ -1608,14 +1609,27 @@ async function loginAdmin() {
     }
     
     try {
-        // ✅ Se déconnecter de la session anonyme d'abord
-        await signOut(auth);
+        // ✅ Détacher le listener Firebase avant de changer d'utilisateur
+        if (dataUnsubscribe) {
+            console.log('🔌 Détachement du listener Firebase...');
+            dataUnsubscribe();
+            dataUnsubscribe = null;
+            isDataListenerActive = false;
+        }
         
-        // ✅ Se connecter avec le compte admin Firebase
+        // ✅ Se connecter directement avec le compte admin
+        // (Firebase remplacera automatiquement la session anonyme)
         await signInWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASSWORD);
         
         console.log('🔑 Connexion admin réussie');
         console.log('🔍 DEBUG après login: isAdminAuthenticated =', isAdminAuthenticated);
+        
+        // ✅ Attendre que onAuthStateChanged mette à jour isAdminAuthenticated
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // ✅ Réattacher le listener avec les nouvelles permissions
+        console.log('🔌 Réattachement du listener Firebase avec permissions admin...');
+        initializeData();
         document.getElementById('loginModal').style.display = 'none';
         document.getElementById('adminPassword').value = '';
         document.getElementById('loginError').textContent = '';
