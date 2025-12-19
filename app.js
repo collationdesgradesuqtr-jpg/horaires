@@ -17,6 +17,7 @@ apiKey: "AIzaSyDIxy8JZQoy1SCIP_ZWkyqIyK2qCJ6XveA",
 let app, database, auth;
 let isAuthReady = false;
 let isAdminAuthenticated = false; // ✅ Track si on est vraiment admin via Firebase Auth
+let isDataListenerActive = false; // ✅ Empêcher les listeners multiples
 
 // ✅ CREDENTIALS ADMIN - Le compte doit être créé dans Firebase Console
 const ADMIN_EMAIL = 'admin@ceremonie-grades.com';
@@ -389,7 +390,14 @@ const initialData = {
 };
 
 async function initializeData() {
+    // ✅ GARDE: Ne pas initialiser si déjà en train d'écouter
+    if (isDataListenerActive) {
+        console.log('📥 Listener déjà actif, pas de réinitialisation');
+        return;
+    }
+    
     console.log('📥 Chargement des données...');
+    isDataListenerActive = true;
     try {
         const dataRef = ref(database, '/');
         
