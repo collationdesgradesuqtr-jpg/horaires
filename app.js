@@ -1,8 +1,8 @@
-// ✅ VERSION SÉCURISÉE 17-DÉC-2024 - FIREBASE AUTH ADMIN ACTIVÉ
-// Modifications: signInWithEmailAndPassword, signOut, isAdminAuthenticated
+// ✅ VERSION SIMPLIFIÉE 18-DÉC-2024 - LECTURE PUBLIQUE + ADMIN AUTH
+// Lecture publique (pas d'auth anonyme), écriture admin seulement
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import { getDatabase, ref, set, get, onValue, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
-import { getAuth, signInAnonymously, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 const firebaseConfig = {
 apiKey: "AIzaSyDIxy8JZQoy1SCIP_ZWkyqIyK2qCJ6XveA",
@@ -17,8 +17,6 @@ apiKey: "AIzaSyDIxy8JZQoy1SCIP_ZWkyqIyK2qCJ6XveA",
 let app, database, auth;
 let isAuthReady = false;
 let isAdminAuthenticated = false; // ✅ Track si on est vraiment admin via Firebase Auth
-let isDataListenerActive = false; // ✅ Empêcher les listeners multiples
-let dataUnsubscribe = null; // ✅ Fonction pour détacher le listener
 
 // ✅ CREDENTIALS ADMIN - Le compte doit être créé dans Firebase Console
 const ADMIN_EMAIL = 'admin@ceremonie-grades.com';
@@ -29,45 +27,25 @@ try {
     auth = getAuth(app);
     console.log('✅ Firebase initialisé');
     
-    // Attendre que l'authentification soit prête
+    // ✅ Charger les données immédiatement (lecture publique)
+    initializeData();
+    
+    // Écouter les changements d'authentification pour l'admin
     onAuthStateChanged(auth, (user) => {
-        if (user) {
-            console.log('✅ Utilisateur authentifié:', user.uid);
-            console.log('📧 Email:', user.email || 'Anonyme');
-            isAuthReady = true;
-            
-            // ✅ Vérifier si c'est un admin
-            if (user.email === ADMIN_EMAIL) {
-                isAdminAuthenticated = true;
-                console.log('🔑 Mode Admin activé via Firebase Auth');
-                console.log('🔍 DEBUG: isAdminAuthenticated est maintenant:', isAdminAuthenticated);
-                console.log('🔍 DEBUG: Vérification - typeof isAdminAuthenticated:', typeof isAdminAuthenticated);
-                // Activer automatiquement le mode admin
-                setTimeout(() => setMode('admin'), 100);
-            } else {
-                isAdminAuthenticated = false;
-                console.log('👁️ Mode lecture seul (anonyme)');
-                console.log('🔍 DEBUG: isAdminAuthenticated est maintenant:', isAdminAuthenticated);
-            }
-            
-            // ✅ Charger les données pour TOUS les utilisateurs authentifiés
-            initializeData();
+        if (user && user.email === ADMIN_EMAIL) {
+            isAdminAuthenticated = true;
+            console.log('✅ Admin connecté:', user.email);
+            console.log('🔑 Mode Admin activé');
+            setTimeout(() => setMode('admin'), 100);
         } else {
-            console.log('⏳ Authentification en cours...');
-            // Authentification anonyme automatique
-            signInAnonymously(auth)
-                .then(() => {
-                    console.log('✅ Authentification anonyme réussie');
-                    isAuthReady = true;
-                    isAdminAuthenticated = false;
-                    // ✅ Charger les données en lecture seule
-                    initializeData();
-                })
-                .catch((error) => {
-                    console.error('❌ Erreur d\'authentification:', error);
-                    alert('⚠️ Erreur d\'authentification. Veuillez recharger la page.');
-                });
+            isAdminAuthenticated = false;
+            if (user) {
+                console.log('👤 Utilisateur connecté (non-admin):', user.email);
+            } else {
+                console.log('👁️ Mode visiteur (lecture seule)');
+            }
         }
+        isAuthReady = true;
     });
 } catch (error) {
     console.error('❌ Erreur Firebase:', error);
@@ -391,19 +369,12 @@ const initialData = {
 };
 
 async function initializeData() {
-    // ✅ GARDE: Ne pas initialiser si déjà en train d'écouter
-    if (isDataListenerActive) {
-        console.log('📥 Listener déjà actif, pas de réinitialisation');
-        return;
-    }
-    
     console.log('📥 Chargement des données...');
-    isDataListenerActive = true;
     try {
         const dataRef = ref(database, '/');
         
         // ✅ ÉCOUTER LES CHANGEMENTS EN TEMPS RÉEL
-        dataUnsubscribe = onValue(dataRef, (snapshot) => {
+        onValue(dataRef, (snapshot) => {
             if (snapshot.exists()) {
                 const data = snapshot.val();
                 console.log('🔄 Données mises à jour depuis Firebase');
@@ -461,14 +432,7 @@ async function initializeData() {
                 console.log('⚠️ Aucune donnée - initialisation');
                 allEmployees = initialData.employees;
                 eventData = { ...initialData };
-                
-                // ✅ NE PAS sauvegarder si on n'est pas admin
-                if (isAdminAuthenticated) {
-                    console.log('💾 Initialisation de la base par l\'admin');
-                    saveData();
-                } else {
-                    console.log('👁️ Mode lecture - utilisation des données locales');
-                }
+                saveData();
             }
         }, (error) => {
             console.error('❌ Erreur lors de l\'écoute Firebase:', error);
@@ -504,28 +468,24 @@ async function saveData() {
         }
     }
     
+    // ✅ VÉRIFICATION CRITIQUE: Seul l'admin peut sauvegarder
+    if (!isAdminAuthenticated) {
+        console.error('❌ Tentative de sauvegarde sans être admin');
+        alert('⚠️ Accès refusé\n\nSeul l\'administrateur peut sauvegarder les modifications.\n\nConnectez-vous en mode Admin pour modifier les données.');
+        return;
+    }
+    
     // Vérifier que l'utilisateur est connecté
     const currentUser = auth.currentUser;
     if (!currentUser) {
         console.error('❌ Aucun utilisateur authentifié');
-        alert('⚠️ Erreur: Vous n\'êtes pas authentifié.\n\nVeuillez recharger la page (F5)');
+        alert('⚠️ Erreur: Vous devez être connecté en tant qu\'administrateur.\n\nVeuillez vous connecter en mode Admin.');
         return;
     }
     
-    // ✅ DEBUG: Afficher les infos de l'utilisateur qui sauvegarde
-    console.log('👤 Utilisateur qui sauvegarde:');
-    console.log('   UID:', currentUser.uid);
-    console.log('   Email:', currentUser.email || 'Anonyme');
-    console.log('   isAdminAuthenticated:', isAdminAuthenticated);
-    
-    // ✅ VÉRIFICATION CRITIQUE: Bloquer si pas admin
-    if (!isAdminAuthenticated) {
-        console.error('❌ Tentative de sauvegarde par un utilisateur non-admin!');
-        alert('⚠️ Accès refusé: Seul l\'administrateur peut sauvegarder les modifications.\n\nConnectez-vous en mode Admin pour pouvoir modifier les données.');
-        return;
-    }
-    
-    console.log('✅ Utilisateur admin vérifié, sauvegarde en cours...');
+    console.log('✅ Admin authentifié, sauvegarde en cours...');
+    console.log('👤 UID:', currentUser.uid);
+    console.log('📧 Email:', currentUser.email);
     
     try {
         const dataToSave = {
@@ -561,12 +521,11 @@ async function saveData() {
         
         if (error.code === 'PERMISSION_DENIED') {
             errorMessage += 'CAUSE PROBABLE:\n';
-            errorMessage += '❌ L\'authentification anonyme n\'est pas activée dans Firebase\n\n';
+            errorMessage += '❌ Vous n\'êtes pas connecté en tant qu\'administrateur\n\n';
             errorMessage += 'SOLUTION:\n';
-            errorMessage += '1. Allez sur console.firebase.google.com\n';
-            errorMessage += '2. Authentication → Sign-in method\n';
-            errorMessage += '3. Activez "Anonymous"\n';
-            errorMessage += '4. Rechargez cette page\n';
+            errorMessage += '1. Cliquez sur le bouton "Admin" en haut\n';
+            errorMessage += '2. Entrez le mot de passe administrateur\n';
+            errorMessage += '3. Réessayez de sauvegarder\n';
         } else {
             errorMessage += 'Vérifiez:\n';
             errorMessage += '1. La connexion Internet\n';
@@ -1609,27 +1568,10 @@ async function loginAdmin() {
     }
     
     try {
-        // ✅ Détacher le listener Firebase avant de changer d'utilisateur
-        if (dataUnsubscribe) {
-            console.log('🔌 Détachement du listener Firebase...');
-            dataUnsubscribe();
-            dataUnsubscribe = null;
-            isDataListenerActive = false;
-        }
-        
-        // ✅ Se connecter directement avec le compte admin
-        // (Firebase remplacera automatiquement la session anonyme)
+        // ✅ Se connecter avec le compte admin Firebase
         await signInWithEmailAndPassword(auth, ADMIN_EMAIL, ADMIN_PASSWORD);
         
         console.log('🔑 Connexion admin réussie');
-        console.log('🔍 DEBUG après login: isAdminAuthenticated =', isAdminAuthenticated);
-        
-        // ✅ Attendre que onAuthStateChanged mette à jour isAdminAuthenticated
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // ✅ Réattacher le listener avec les nouvelles permissions
-        console.log('🔌 Réattachement du listener Firebase avec permissions admin...');
-        initializeData();
         document.getElementById('loginModal').style.display = 'none';
         document.getElementById('adminPassword').value = '';
         document.getElementById('loginError').textContent = '';
@@ -2182,7 +2124,6 @@ async function migrateToNewStructure() {
 
 
 console.log('🚀 Application Cérémonie des Grades - Démarrage...');
-console.log('🔐 Système d\'authentification: ACTIVÉ');
-console.log('⏳ Initialisation de l\'authentification Firebase...');
-console.log('📌 Note: Attendez le message "✅ Authentification anonyme réussie" avant de modifier des données');
+console.log('👁️ Mode lecture publique activé');
+console.log('🔐 Connectez-vous en mode Admin pour modifier les données');
 
