@@ -15,8 +15,7 @@ apiKey: "AIzaSyDIxy8JZQoy1SCIP_ZWkyqIyK2qCJ6XveA",
 };
 
 let app, database, auth;
-let isAuthReady = false;
-let isAdminAuthenticated = false; // ✅ Track si on est vraiment admin via Firebase Auth
+let isAdminAuthenticated = false;
 
 // ✅ CREDENTIALS ADMIN - Le compte doit être créé dans Firebase Console
 const ADMIN_EMAIL = 'admin@ceremonie-grades.com';
@@ -45,7 +44,6 @@ try {
                 console.log('👁️ Mode visiteur (lecture seule)');
             }
         }
-        isAuthReady = true;
     });
 } catch (error) {
     console.error('❌ Erreur Firebase:', error);
@@ -451,23 +449,6 @@ async function initializeData() {
 async function saveData() {
     console.log('💾 Tentative de sauvegarde...');
     
-    // Vérifier l'authentification
-    if (!isAuthReady) {
-        console.log('⏳ Attente de l\'authentification...');
-        // Attendre jusqu'à 5 secondes pour l'authentification
-        let waitTime = 0;
-        while (!isAuthReady && waitTime < 5000) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-            waitTime += 100;
-        }
-        
-        if (!isAuthReady) {
-            console.error('❌ Authentification non prête après 5 secondes');
-            alert('⚠️ Erreur: Authentification non prête.\n\nVeuillez attendre quelques secondes et réessayer.\n\nSi le problème persiste:\n1. Rechargez la page (F5)\n2. Vérifiez que l\'authentification anonyme est activée dans Firebase');
-            return;
-        }
-    }
-    
     // ✅ VÉRIFICATION CRITIQUE: Seul l'admin peut sauvegarder
     if (!isAdminAuthenticated) {
         console.error('❌ Tentative de sauvegarde sans être admin');
@@ -484,8 +465,6 @@ async function saveData() {
     }
     
     console.log('✅ Admin authentifié, sauvegarde en cours...');
-    console.log('👤 UID:', currentUser.uid);
-    console.log('📧 Email:', currentUser.email);
     
     try {
         const dataToSave = {
