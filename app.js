@@ -130,6 +130,7 @@ const initialData = {
                     { name: "Préparation des diplômés (Épitoges)", location: "", responsables: [], employees: [] },
                     { name: "Préparation des diplômés (Vestiaires et sacoche)", location: "", responsables: [], employees: [] },
                     { name: "Préparation des diplômés (Mortier)", location: "", responsables: [], employees: [] },
+                    { name: "Concours diplômés / Diriger les finissants", location: "", responsables: [], employees: [] },
                     { name: "Chapiteau des diplômés", location: "", responsables: [], employees: [] },
                     { name: "Consignes aux diplômés et gestion de la salle", location: "", responsables: [], employees: [] }
                 ]
@@ -176,6 +177,7 @@ const initialData = {
                 { name: "Préparation des diplômés (Épitoges)", location: "", responsables: [], employees: [] },
                 { name: "Préparation des diplômés (Vestiaires et sacoche)", location: "", responsables: [], employees: [] },
                 { name: "Préparation des diplômés (Mortier)", location: "", responsables: [], employees: [] },
+                { name: "Concours diplômés / Diriger les finissants", location: "", responsables: [], employees: [] },
                 { name: "Chapiteau des diplômés", location: "", responsables: [], employees: [] },
                 { name: "Consignes aux diplômés et gestion de la salle", location: "", responsables: [], employees: [] }
             ]},
@@ -215,6 +217,7 @@ const initialData = {
                 { name: "Préparation des diplômés (Épitoges)", location: "", responsables: [], employees: [] },
                 { name: "Préparation des diplômés (Vestiaires et sacoche)", location: "", responsables: [], employees: [] },
                 { name: "Préparation des diplômés (Mortier)", location: "", responsables: [], employees: [] },
+                { name: "Concours diplômés / Diriger les finissants", location: "", responsables: [], employees: [] },
                 { name: "Chapiteau des diplômés", location: "", responsables: [], employees: [] },
                 { name: "Consignes aux diplômés et gestion de la salle", location: "", responsables: [], employees: [] }
             ]},
@@ -254,6 +257,7 @@ const initialData = {
                 { name: "Préparation des diplômés (Épitoges)", location: "", responsables: [], employees: [] },
                 { name: "Préparation des diplômés (Vestiaires et sacoche)", location: "", responsables: [], employees: [] },
                 { name: "Préparation des diplômés (Mortier)", location: "", responsables: [], employees: [] },
+                { name: "Concours diplômés / Diriger les finissants", location: "", responsables: [], employees: [] },
                 { name: "Chapiteau des diplômés", location: "", responsables: [], employees: [] },
                 { name: "Consignes aux diplômés et gestion de la salle", location: "", responsables: [], employees: [] }
             ]},
@@ -293,6 +297,7 @@ const initialData = {
                 { name: "Préparation des diplômés (Épitoges)", location: "", responsables: [], employees: [] },
                 { name: "Préparation des diplômés (Vestiaires et sacoche)", location: "", responsables: [], employees: [] },
                 { name: "Préparation des diplômés (Mortier)", location: "", responsables: [], employees: [] },
+                { name: "Concours diplômés / Diriger les finissants", location: "", responsables: [], employees: [] },
                 { name: "Chapiteau des diplômés", location: "", responsables: [], employees: [] },
                 { name: "Consignes aux diplômés et gestion de la salle", location: "", responsables: [], employees: [] }
             ]},
@@ -332,6 +337,7 @@ const initialData = {
                 { name: "Préparation des diplômés (Épitoges)", location: "", responsables: [], employees: [] },
                 { name: "Préparation des diplômés (Vestiaires et sacoche)", location: "", responsables: [], employees: [] },
                 { name: "Préparation des diplômés (Mortier)", location: "", responsables: [], employees: [] },
+                { name: "Concours diplômés / Diriger les finissants", location: "", responsables: [], employees: [] },
                 { name: "Chapiteau des diplômés", location: "", responsables: [], employees: [] },
                 { name: "Consignes aux diplômés et gestion de la salle", location: "", responsables: [], employees: [] }
             ]},
@@ -1657,6 +1663,7 @@ window.removeEmployeeFromList = removeEmployeeFromList;
 window.exportTemplate = exportTemplate;
 window.manageSectorNote = manageSectorNote;
 window.copyTemplateToAllCeremonies = copyTemplateToAllCeremonies;
+window.migrateAddConcoursDiplomes = migrateAddConcoursDiplomes;
 
 console.log('🚀 Démarrage...');
 console.log('🔍 Vérification des fonctions globales:');
@@ -2101,6 +2108,96 @@ async function migrateToNewStructure() {
     }
 }
 
+
+async function migrateAddConcoursDiplomes() {
+    if (!confirm('⚠️ MIGRATION\n\nCette action va ajouter dans chaque cérémonie (1 à 6) :\n- "Concours diplômés / Diriger les finissants"\n  (entre Mortier et Chapiteau des diplômés)\n\nVos données existantes seront préservées.\n\nContinuer ?')) {
+        return;
+    }
+
+    console.log('🔄 Début de la migration Concours diplômés...');
+
+    try {
+        let migratedCount = 0;
+        let addedCount = 0;
+
+        ['ceremonie1', 'ceremonie2', 'ceremonie3', 'ceremonie4', 'ceremonie5', 'ceremonie6'].forEach(ceremonyKey => {
+            if (!eventData[ceremonyKey] || !eventData[ceremonyKey].sections) {
+                console.warn(`⚠️ ${ceremonyKey} introuvable, ignorée`);
+                return;
+            }
+
+            const avantSection = eventData[ceremonyKey].sections.find(s =>
+                s.title && s.title.includes('AVANT')
+            );
+
+            if (!avantSection) {
+                console.warn(`⚠️ Section AVANT introuvable dans ${ceremonyKey}`);
+                return;
+            }
+
+            // Vérifier si le secteur existe déjà
+            const alreadyExists = avantSection.sectors.some(s =>
+                s.name === 'Concours diplômés / Diriger les finissants'
+            );
+
+            if (alreadyExists) {
+                console.log(`ℹ️ ${ceremonyKey}: secteur déjà présent, ignoré`);
+                migratedCount++;
+                return;
+            }
+
+            // Trouver l'index de "Préparation des diplômés (Mortier)"
+            const mortierIndex = avantSection.sectors.findIndex(s =>
+                s.name === 'Préparation des diplômés (Mortier)'
+            );
+
+            if (mortierIndex !== -1) {
+                avantSection.sectors.splice(mortierIndex + 1, 0, {
+                    name: 'Concours diplômés / Diriger les finissants',
+                    location: '',
+                    responsables: [],
+                    employees: [],
+                    note: ''
+                });
+                addedCount++;
+                console.log(`✅ ${ceremonyKey}: secteur ajouté après Mortier (index ${mortierIndex})`);
+            } else {
+                console.warn(`⚠️ ${ceremonyKey}: Mortier introuvable, ajout en fin de section AVANT`);
+                avantSection.sectors.push({
+                    name: 'Concours diplômés / Diriger les finissants',
+                    location: '',
+                    responsables: [],
+                    employees: [],
+                    note: ''
+                });
+                addedCount++;
+            }
+
+            migratedCount++;
+        });
+
+        await saveData();
+
+        alert(
+            '✅ MIGRATION RÉUSSIE !\n\n' +
+            migratedCount + ' cérémonies traitées.\n' +
+            addedCount + ' x "Concours diplômés / Diriger les finissants" ajoutés.\n\n' +
+            'La page va se recharger...'
+        );
+
+        setTimeout(() => {
+            location.reload();
+        }, 1500);
+
+    } catch (error) {
+        console.error('❌ Erreur lors de la migration:', error);
+        alert(
+            '❌ ERREUR lors de la migration\n\n' +
+            'Détails: ' + error.message + '\n\n' +
+            'Vos données n\'ont PAS été modifiées.'
+        );
+    }
+}
 
 console.log('🚀 Application Cérémonie des Grades - Démarrage...');
 console.log('👁️ Mode lecture publique activé');
