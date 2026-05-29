@@ -369,7 +369,8 @@ const initialData = {
             { name: "Scène Démontage - Concession", location: "Concessions alimentaires – Préparation finissants", responsables: ["Rachel Lemelin", "Gabrielle Samson", "Jessie Boulanger"], employees: ["Catherine Larivière"] },
             { name: "Démontage - Chapiteau", location: "Chapiteau des diplômés", responsables: ["Rachel Lemelin", "Gabrielle Samson", "Jessie Boulanger"], employees: ["Maria Stéphanie Tardif-Otero"] },
             { name: "RETRAIT AFFICHAGE (BEACH FLAG/SIGNALISATION)", location: "", responsables: [], employees: [] },
-            { name: "Rapatriement - matériel informatique Inventaire des radios portatives", location: "", responsables: [], employees: [] }
+            { name: "Rapatriement - matériel informatique", location: "", responsables: [], employees: [] },
+            { name: "Inventaire des radios portatives", location: "", responsables: [], employees: [] }
         ]
     }
 };
@@ -2214,7 +2215,8 @@ async function migrateDemontageRename() {
         '✏️ "Tout approcher pour les camions" (Concessions) → Scène Démontage - Concession\n' +
         '✏️ "Tout approcher pour les camions" (Chapiteau) → Démontage - Chapiteau\n' +
         '➕ RETRAIT AFFICHAGE (BEACH FLAG/SIGNALISATION)\n' +
-        '➕ Rapatriement - matériel informatique Inventaire des radios portatives\n\n' +
+        '➕ Rapatriement - matériel informatique\n' +
+        '➕ Inventaire des radios portatives\n\n' +
         'Toutes vos affectations existantes seront conservées.\n\n' +
         'Continuer ?'
     )) {
@@ -2235,9 +2237,10 @@ async function migrateDemontageRename() {
 
         // Mapping : anciens noms exacts (tels que stockés dans Firebase) → nouveaux noms
         const renameMap = [
-            { oldName: 'Tout approcher pour les camions - Hall',         newName: 'DÉMONTAGE-HALL DIGNITAIRES' },
-            { oldName: 'Tout approcher pour les camions- Concessions',   newName: 'Scène Démontage - Concession' },
-            { oldName: 'Tout approcher pour les camions - Chapiteau',    newName: 'Démontage - Chapiteau' },
+            { oldName: 'Tout approcher pour les camions - Hall',                                    newName: 'DÉMONTAGE-HALL DIGNITAIRES' },
+            { oldName: 'Tout approcher pour les camions- Concessions',                          newName: 'Scène Démontage - Concession' },
+            { oldName: 'Tout approcher pour les camions - Chapiteau',                           newName: 'Démontage - Chapiteau' },
+            { oldName: 'Rapatriement - matériel informatique Inventaire des radios portatives', newName: 'Rapatriement - matériel informatique' },
         ];
 
         renameMap.forEach(({ oldName, newName }) => {
@@ -2260,7 +2263,8 @@ async function migrateDemontageRename() {
         // Ajouter les 2 nouveaux blocs si absents
         const nouveauxBlocs = [
             { name: 'RETRAIT AFFICHAGE (BEACH FLAG/SIGNALISATION)', location: '', responsables: [], employees: [], note: '' },
-            { name: 'Rapatriement - matériel informatique Inventaire des radios portatives', location: '', responsables: [], employees: [], note: '' }
+            { name: 'Rapatriement - matériel informatique', location: '', responsables: [], employees: [], note: '' },
+            { name: 'Inventaire des radios portatives', location: '', responsables: [], employees: [], note: '' }
         ];
 
         nouveauxBlocs.forEach(bloc => {
