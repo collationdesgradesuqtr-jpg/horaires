@@ -2233,27 +2233,26 @@ async function migrateDemontageRename() {
         let renamedCount = 0;
         let addedCount = 0;
 
-        // Mapping : anciens noms (par location) → nouveaux noms
+        // Mapping : anciens noms exacts (tels que stockés dans Firebase) → nouveaux noms
         const renameMap = [
-            { oldName: 'Tout approcher pour les camions', location: 'Hall des dignitaires',                            newName: 'DÉMONTAGE-HALL DIGNITAIRES' },
-            { oldName: 'Tout approcher pour les camions', location: 'Concessions alimentaires – Préparation finissants', newName: 'Scène Démontage - Concession' },
-            { oldName: 'Tout approcher pour les camions', location: 'Chapiteau des diplômés',                           newName: 'Démontage - Chapiteau' },
+            { oldName: 'Tout approcher pour les camions - Hall',         newName: 'DÉMONTAGE-HALL DIGNITAIRES' },
+            { oldName: 'Tout approcher pour les camions- Concessions',   newName: 'Scène Démontage - Concession' },
+            { oldName: 'Tout approcher pour les camions - Chapiteau',    newName: 'Démontage - Chapiteau' },
         ];
 
-        renameMap.forEach(({ oldName, location, newName }) => {
-            const sector = sectors.find(s => s.name === oldName && s.location === location);
+        renameMap.forEach(({ oldName, newName }) => {
+            const sector = sectors.find(s => s.name === oldName);
             if (sector) {
                 console.log(`✅ Renommé: "${sector.name}" → "${newName}"`);
                 sector.name = newName;
                 renamedCount++;
             } else {
-                // Tenter de trouver par nom seulement si déjà renommé
                 const alreadyRenamed = sectors.find(s => s.name === newName);
                 if (alreadyRenamed) {
                     console.log(`ℹ️ Déjà renommé: "${newName}", ignoré`);
                     renamedCount++;
                 } else {
-                    console.warn(`⚠️ Secteur introuvable: "${oldName}" @ ${location}`);
+                    console.warn(`⚠️ Secteur introuvable: "${oldName}"`);
                 }
             }
         });
