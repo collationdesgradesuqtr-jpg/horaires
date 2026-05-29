@@ -364,10 +364,12 @@ const initialData = {
         title: "Démontage mercredi (8h30 à 11h00)",
         sectors: [
             { name: "Accueil (répartition des Camions)", location: "Près des grilles d'entrée", responsables: ["Rachel Lemelin", "Gabrielle Samson", "Jessie Boulanger"], employees: [] },
-            { name: "Tout approcher pour les camions", location: "Hall des dignitaires", responsables: ["Rachel Lemelin", "Gabrielle Samson", "Jessie Boulanger"], employees: ["Kaïm Demers"] },
+            { name: "DÉMONTAGE-HALL DIGNITAIRES", location: "Hall des dignitaires", responsables: ["Rachel Lemelin", "Gabrielle Samson", "Jessie Boulanger"], employees: ["Kaïm Demers"] },
             { name: "Rapatrier les toges pour le fournisseurs", location: "Concessions alimentaires – Préparation finissants", responsables: ["Rachel Lemelin", "Gabrielle Samson", "Jessie Boulanger"], employees: ["Manon Ruest"] },
-            { name: "Tout approcher pour les camions", location: "Concessions alimentaires – Préparation finissants", responsables: ["Rachel Lemelin", "Gabrielle Samson", "Jessie Boulanger"], employees: ["Catherine Larivière"] },
-            { name: "Tout approcher pour les camions", location: "Chapiteau des diplômés", responsables: ["Rachel Lemelin", "Gabrielle Samson", "Jessie Boulanger"], employees: ["Maria Stéphanie Tardif-Otero"] }
+            { name: "Scène Démontage - Concession", location: "Concessions alimentaires – Préparation finissants", responsables: ["Rachel Lemelin", "Gabrielle Samson", "Jessie Boulanger"], employees: ["Catherine Larivière"] },
+            { name: "Démontage - Chapiteau", location: "Chapiteau des diplômés", responsables: ["Rachel Lemelin", "Gabrielle Samson", "Jessie Boulanger"], employees: ["Maria Stéphanie Tardif-Otero"] },
+            { name: "RETRAIT AFFICHAGE (BEACH FLAG/SIGNALISATION)", location: "", responsables: [], employees: [] },
+            { name: "Rapatriement - matériel informatique Inventaire des radios portatives", location: "", responsables: [], employees: [] }
         ]
     }
 };
@@ -539,22 +541,26 @@ function setMode(mode) {
     const readNav = document.getElementById('readNav');
     const manageEmployeesBtn = document.getElementById('manageEmployeesListBtn');
     const copyTemplateBtn = document.getElementById('copyTemplateBtn');
+    const migrateDemontageBtn = document.getElementById('migrateDemontageBtn');
     
     if (mode === 'employee') {
         employeeNav.style.display = 'block';
         readNav.style.display = 'none';
         if (manageEmployeesBtn) manageEmployeesBtn.style.display = 'none';
         if (copyTemplateBtn) copyTemplateBtn.style.display = 'none';
+        if (migrateDemontageBtn) migrateDemontageBtn.style.display = 'none';
     } else if (mode === 'read') {
         employeeNav.style.display = 'none';
         readNav.style.display = 'block';
         if (manageEmployeesBtn) manageEmployeesBtn.style.display = 'none';
         if (copyTemplateBtn) copyTemplateBtn.style.display = 'none';
+        if (migrateDemontageBtn) migrateDemontageBtn.style.display = 'none';
     } else if (mode === 'admin') {
         employeeNav.style.display = 'none';
         readNav.style.display = 'none';
         if (manageEmployeesBtn) manageEmployeesBtn.style.display = 'inline-flex';
         if (copyTemplateBtn) copyTemplateBtn.style.display = 'inline-flex';
+        if (migrateDemontageBtn) migrateDemontageBtn.style.display = 'inline-flex';
     }
     
     renderEvent(currentEvent);
@@ -1664,6 +1670,7 @@ window.exportTemplate = exportTemplate;
 window.manageSectorNote = manageSectorNote;
 window.copyTemplateToAllCeremonies = copyTemplateToAllCeremonies;
 window.migrateAddConcoursDiplomes = migrateAddConcoursDiplomes;
+window.migrateDemontageRename = migrateDemontageRename;
 
 console.log('🚀 Démarrage...');
 console.log('🔍 Vérification des fonctions globales:');
@@ -2191,6 +2198,97 @@ async function migrateAddConcoursDiplomes() {
 
     } catch (error) {
         console.error('❌ Erreur lors de la migration:', error);
+        alert(
+            '❌ ERREUR lors de la migration\n\n' +
+            'Détails: ' + error.message + '\n\n' +
+            'Vos données n\'ont PAS été modifiées.'
+        );
+    }
+}
+
+async function migrateDemontageRename() {
+    if (!confirm(
+        '⚠️ MIGRATION - Démontage\n\n' +
+        'Cette action va renommer 3 blocs et ajouter 2 nouveaux blocs dans la journée de Démontage :\n\n' +
+        '✏️ "Tout approcher pour les camions" (Hall) → DÉMONTAGE-HALL DIGNITAIRES\n' +
+        '✏️ "Tout approcher pour les camions" (Concessions) → Scène Démontage - Concession\n' +
+        '✏️ "Tout approcher pour les camions" (Chapiteau) → Démontage - Chapiteau\n' +
+        '➕ RETRAIT AFFICHAGE (BEACH FLAG/SIGNALISATION)\n' +
+        '➕ Rapatriement - matériel informatique Inventaire des radios portatives\n\n' +
+        'Toutes vos affectations existantes seront conservées.\n\n' +
+        'Continuer ?'
+    )) {
+        return;
+    }
+
+    console.log('🔄 Début de la migration Démontage...');
+
+    try {
+        if (!eventData.demontage || !eventData.demontage.sectors) {
+            alert('❌ Aucune donnée de Démontage trouvée dans Firebase.\n\nAssurez-vous d\'être en mode Admin et que les données sont chargées.');
+            return;
+        }
+
+        const sectors = eventData.demontage.sectors;
+        let renamedCount = 0;
+        let addedCount = 0;
+
+        // Mapping : anciens noms (par location) → nouveaux noms
+        const renameMap = [
+            { oldName: 'Tout approcher pour les camions', location: 'Hall des dignitaires',                            newName: 'DÉMONTAGE-HALL DIGNITAIRES' },
+            { oldName: 'Tout approcher pour les camions', location: 'Concessions alimentaires – Préparation finissants', newName: 'Scène Démontage - Concession' },
+            { oldName: 'Tout approcher pour les camions', location: 'Chapiteau des diplômés',                           newName: 'Démontage - Chapiteau' },
+        ];
+
+        renameMap.forEach(({ oldName, location, newName }) => {
+            const sector = sectors.find(s => s.name === oldName && s.location === location);
+            if (sector) {
+                console.log(`✅ Renommé: "${sector.name}" → "${newName}"`);
+                sector.name = newName;
+                renamedCount++;
+            } else {
+                // Tenter de trouver par nom seulement si déjà renommé
+                const alreadyRenamed = sectors.find(s => s.name === newName);
+                if (alreadyRenamed) {
+                    console.log(`ℹ️ Déjà renommé: "${newName}", ignoré`);
+                    renamedCount++;
+                } else {
+                    console.warn(`⚠️ Secteur introuvable: "${oldName}" @ ${location}`);
+                }
+            }
+        });
+
+        // Ajouter les 2 nouveaux blocs si absents
+        const nouveauxBlocs = [
+            { name: 'RETRAIT AFFICHAGE (BEACH FLAG/SIGNALISATION)', location: '', responsables: [], employees: [], note: '' },
+            { name: 'Rapatriement - matériel informatique Inventaire des radios portatives', location: '', responsables: [], employees: [], note: '' }
+        ];
+
+        nouveauxBlocs.forEach(bloc => {
+            const existe = sectors.find(s => s.name === bloc.name);
+            if (!existe) {
+                sectors.push(bloc);
+                console.log(`✅ Ajouté: "${bloc.name}"`);
+                addedCount++;
+            } else {
+                console.log(`ℹ️ Déjà présent: "${bloc.name}", ignoré`);
+            }
+        });
+
+        await saveData();
+
+        alert(
+            '✅ MIGRATION RÉUSSIE !\n\n' +
+            renamedCount + ' bloc(s) renommé(s)\n' +
+            addedCount + ' nouveau(x) bloc(s) ajouté(s)\n\n' +
+            '✅ Toutes vos affectations sont conservées.\n\n' +
+            'La page va se recharger...'
+        );
+
+        setTimeout(() => { location.reload(); }, 1500);
+
+    } catch (error) {
+        console.error('❌ Erreur lors de la migration Démontage:', error);
         alert(
             '❌ ERREUR lors de la migration\n\n' +
             'Détails: ' + error.message + '\n\n' +
