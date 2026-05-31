@@ -367,6 +367,7 @@ const initialData = {
             { name: "DÉMONTAGE-HALL DIGNITAIRES", location: "Hall des dignitaires", responsables: ["Rachel Lemelin", "Gabrielle Samson", "Jessie Boulanger"], employees: ["Kaïm Demers"] },
             { name: "Rapatrier les toges pour le fournisseurs", location: "Concessions alimentaires – Préparation finissants", responsables: ["Rachel Lemelin", "Gabrielle Samson", "Jessie Boulanger"], employees: ["Manon Ruest"] },
             { name: "Scène Démontage - Concession", location: "Concessions alimentaires – Préparation finissants", responsables: ["Rachel Lemelin", "Gabrielle Samson", "Jessie Boulanger"], employees: ["Catherine Larivière"] },
+            { name: "DÉMONTAGE - SCÈNE", location: "", responsables: [], employees: [] },
             { name: "Démontage - Chapiteau", location: "Chapiteau des diplômés", responsables: ["Rachel Lemelin", "Gabrielle Samson", "Jessie Boulanger"], employees: ["Maria Stéphanie Tardif-Otero"] },
             { name: "RETRAIT AFFICHAGE (BEACH FLAG/SIGNALISATION)", location: "", responsables: [], employees: [] },
             { name: "Rapatriement - matériel informatique", location: "", responsables: [], employees: [] },
@@ -543,6 +544,7 @@ function setMode(mode) {
     const manageEmployeesBtn = document.getElementById('manageEmployeesListBtn');
     const copyTemplateBtn = document.getElementById('copyTemplateBtn');
     const migrateDemontageBtn = document.getElementById('migrateDemontageBtn');
+    const migrerSceneBtn = document.getElementById('migrerDemontageSceneBtn');
     
     if (mode === 'employee') {
         employeeNav.style.display = 'block';
@@ -550,18 +552,21 @@ function setMode(mode) {
         if (manageEmployeesBtn) manageEmployeesBtn.style.display = 'none';
         if (copyTemplateBtn) copyTemplateBtn.style.display = 'none';
         if (migrateDemontageBtn) migrateDemontageBtn.style.display = 'none';
+        if (migrerSceneBtn) migrerSceneBtn.style.display = 'none';
     } else if (mode === 'read') {
         employeeNav.style.display = 'none';
         readNav.style.display = 'block';
         if (manageEmployeesBtn) manageEmployeesBtn.style.display = 'none';
         if (copyTemplateBtn) copyTemplateBtn.style.display = 'none';
         if (migrateDemontageBtn) migrateDemontageBtn.style.display = 'none';
+        if (migrerSceneBtn) migrerSceneBtn.style.display = 'none';
     } else if (mode === 'admin') {
         employeeNav.style.display = 'none';
         readNav.style.display = 'none';
         if (manageEmployeesBtn) manageEmployeesBtn.style.display = 'inline-flex';
         if (copyTemplateBtn) copyTemplateBtn.style.display = 'inline-flex';
         if (migrateDemontageBtn) migrateDemontageBtn.style.display = 'inline-flex';
+        if (migrerSceneBtn) migrerSceneBtn.style.display = 'inline-flex';
     }
     
     renderEvent(currentEvent);
@@ -1672,6 +1677,7 @@ window.manageSectorNote = manageSectorNote;
 window.copyTemplateToAllCeremonies = copyTemplateToAllCeremonies;
 window.migrateAddConcoursDiplomes = migrateAddConcoursDiplomes;
 window.migrateDemontageRename = migrateDemontageRename;
+window.migrerDemontageScene = migrerDemontageScene;
 
 console.log('🚀 Démarrage...');
 console.log('🔍 Vérification des fonctions globales:');
@@ -2292,6 +2298,74 @@ async function migrateDemontageRename() {
 
     } catch (error) {
         console.error('❌ Erreur lors de la migration Démontage:', error);
+        alert(
+            '❌ ERREUR lors de la migration\n\n' +
+            'Détails: ' + error.message + '\n\n' +
+            'Vos données n\'ont PAS été modifiées.'
+        );
+    }
+}
+
+async function migrerDemontageScene() {
+    if (!confirm(
+        '⚠️ MIGRATION - Ajout bloc Démontage\n\n' +
+        'Cette action va ajouter le bloc :\n\n' +
+        '➕ DÉMONTAGE - SCÈNE\n\n' +
+        '...juste après "Scène Démontage - Concession".\n\n' +
+        'Toutes vos affectations existantes seront conservées.\n\n' +
+        'Continuer ?'
+    )) return;
+
+    console.log('🔄 Début de la migration DÉMONTAGE - SCÈNE...');
+
+    try {
+        if (!eventData.demontage || !eventData.demontage.sectors) {
+            alert('❌ Aucune donnée de Démontage trouvée dans Firebase.\n\nAssurez-vous d\'être en mode Admin.');
+            return;
+        }
+
+        const sectors = eventData.demontage.sectors;
+        const nomReference = 'Scène Démontage - Concession';
+        const nomNouveau = 'DÉMONTAGE - SCÈNE';
+
+        // Vérifier si déjà présent
+        if (sectors.find(s => s.name === nomNouveau)) {
+            alert('ℹ️ Le bloc "DÉMONTAGE - SCÈNE" existe déjà. Aucune modification nécessaire.');
+            return;
+        }
+
+        // Trouver l'index de "Scène Démontage - Concession"
+        const indexRef = sectors.findIndex(s => s.name === nomReference);
+
+        const nouveauBloc = {
+            name: nomNouveau,
+            location: '',
+            responsables: [],
+            employees: [],
+            note: ''
+        };
+
+        if (indexRef !== -1) {
+            sectors.splice(indexRef + 1, 0, nouveauBloc);
+            console.log(`✅ Inséré après "${nomReference}" (index ${indexRef})`);
+        } else {
+            console.warn(`⚠️ "${nomReference}" introuvable, ajout à la fin`);
+            sectors.push(nouveauBloc);
+        }
+
+        await saveData();
+
+        alert(
+            '✅ MIGRATION RÉUSSIE !\n\n' +
+            '1 nouveau bloc ajouté : "DÉMONTAGE - SCÈNE"\n\n' +
+            '✅ Toutes vos affectations sont conservées.\n\n' +
+            'La page va se recharger...'
+        );
+
+        setTimeout(() => { location.reload(); }, 1500);
+
+    } catch (error) {
+        console.error('❌ Erreur lors de la migration:', error);
         alert(
             '❌ ERREUR lors de la migration\n\n' +
             'Détails: ' + error.message + '\n\n' +
